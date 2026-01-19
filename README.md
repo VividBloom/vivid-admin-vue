@@ -468,3 +468,101 @@ Prettier 格式化。如果所有检查通过，提交才会成功；否则，�
 4. 组件 key 改变 → Vue 重新渲染组件
 5. 组件内部通过 watch 检测刷新标记 → 重新加载数据
 6. 刷新完成后，延迟调用 clearRefreshFlag
+
+# 集成 Tailwind CSS
+
+```
+# 安装 Tailwind CSS v4
+pnpm add -D tailwindcss@next
+pnpm add -D @tailwindcss/vite
+
+# 安装必要的插件
+pnpm add -D @tailwindcss/forms
+pnpm add lucide-vue-next # 现代化图标库
+
+
+// vite.config.ts
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(), // 添加 Tailwind CSS v4
+  ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use '@/styles/main.scss' as *;';`,
+      },
+    },
+  },
+})
+
+# 创建 Tailwind CSS 配置
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // 主色调 - 紫色
+        primary: {
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          300: '#d8b4fe',
+          400: '#c084fc',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7e22ce',
+          800: '#6b21a8',
+          900: '#581c87',
+        },
+        // 中性色
+        neutral: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0a0a0a',
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+        'float': 'float 3s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(20px)', opacity: 0 },
+          '100%': { transform: 'translateX(0)', opacity: 1 },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
+}
+```
