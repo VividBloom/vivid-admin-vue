@@ -1,3 +1,8 @@
+<!--
+  用户详情页面 UserDetail
+  - 显示单个用户的详细信息，支持通过路由参数或 props 获取 user id
+  - 示例中使用 `useRoute` 获取参数并模拟加载数据
+-->
 <template>
   <div class="user-detail">
     <el-card>
@@ -32,34 +37,31 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-// 方式1: 通过 props 接收参数 (需要在路由配置中设置 props: true)[3,5](@ref)
-// defineProps<{
-//   id?: string
-// }>()
-
-// 方式2: 通过 useRoute 获取参数[3,6](@ref)
+// 支持两种获取参数的方式：props 或 useRoute（此处使用 useRoute）
 const route = useRoute()
 const userInfo = ref<any>(null)
 
-onMounted(() => {
-  loadUserDetail()
-})
+onMounted(() => loadUserDetail())
 
-// 监听路由参数变化
+// 监听路由参数变化以重新加载数据
 watch(
   () => route.params.id,
   newId => {
-    if (newId) {
-      loadUserDetail()
-    }
+    if (newId) loadUserDetail()
   }
 )
 
+// 加载用户详情（示例为模拟异步数据）
 const loadUserDetail = async () => {
   const userId = route.params.id
-  // 模拟API调用
   setTimeout(() => {
     userInfo.value = {
+      id: userId,
+      username: `用户${userId}`,
+      email: `user${userId}@example.com`,
+      role: '普通用户',
+      createTime: '2025-01-01',
+
       id: userId,
       username: `用户${userId}`,
       email: `user${userId}@example.com`,

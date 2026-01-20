@@ -59,7 +59,7 @@ export const userMocks: MockMethod[] = [
     url: '/api/auth/login',
     method: 'post',
     timeout: 500,
-    response: ({ body }) => {
+    response: ({ body }: { body: any }) => {
       const { username, password } = body
       const user = userList.find(u => u.username === username && u.password === password)
 
@@ -79,7 +79,7 @@ export const userMocks: MockMethod[] = [
     url: '/api/auth/userinfo',
     method: 'get',
     timeout: 300,
-    response: req => {
+    response: (req: any) => {
       const token = req.headers.authorization
       if (!token || !token.includes('mock-jwt-token')) {
         return resultError('未授权', 401)

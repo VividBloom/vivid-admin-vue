@@ -1,10 +1,19 @@
+/**
+ * 应用级状态管理（App Store）
+ * - 管理页面刷新标志、缓存视图、窗口尺寸、主题（暗黑/亮色）等全局状态
+ */
 import { defineStore } from 'pinia'
 import { useDark, useToggle } from '@vueuse/core'
+import { ref, computed } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
-  const reloadFlag = ref(true) // 控制组件刷新的标志
-  const cachedViews = ref<string[]>([]) // 缓存的视图组件名称
-  const needReloadPath = ref<string | null>('') // 需要刷新的路径
+  // 是否触发重新渲染/刷新（配合组件内部的 v-if 或 key 切换实现刷新）
+  const reloadFlag = ref(true)
+  // 缓存的视图组件名称（用于 keep-alive 的 include）
+  const cachedViews = ref<string[]>([])
+  // 指定需要刷新的路由路径（reloadPage 会设置该字段）
+  const needReloadPath = ref<string | null>('')
+  // 当前窗口尺寸（用于响应式布局）
   const windowSize = ref<{ width: number; height: number }>({ width: 0, height: 0 })
   const initialized = ref(false)
   // 使用 useDark 创建响应式暗黑模式状态

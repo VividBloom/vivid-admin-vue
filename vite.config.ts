@@ -1,3 +1,8 @@
+/**
+ * Vite 配置文件
+ * - 负责开发服务器、构建输出、插件等项目级配置
+ * - 本项目使用 Vue3 + Vite + Pinia + ElementPlus
+ */
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -10,13 +15,17 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 import { viteMockServe } from 'vite-plugin-mock'
 
-import tailwindcss from '@tailwindcss/vite'
+import UnoCSS from 'unocss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // 插件配置：按需自动导入、组件解析、Mock、UnoCSS 等
   plugins: [
+    // Vue 单文件组件支持
     vue(),
+    // 开发时的 Vue devtools 支持（仅在开发环境有用）
     vueDevTools(),
+    // 自动导入常用函数（如 ref、computed）并生成类型声明
     AutoImport({
       imports: ['vue', 'vue-router', 'pinia'],
       resolvers: [ElementPlusResolver()],
@@ -25,27 +34,34 @@ export default defineConfig({
         enabled: true,
       },
     }),
+    // 按需注册组件并生成类型声明（配合 ElementPlusResolver）
     Components({
       resolvers: [ElementPlusResolver()],
       dts: 'src/types/components.d.ts',
     }),
-    // Mock 配置
+    // 本地 Mock 服务配置：开发时拦截接口并返回模拟数据
     viteMockServe({
-      mockPath: './src/mock', // Mock 文件所在目录
-      logger: true, // 控制台显示请求日志
+      mockPath: './src/mock', // Mock 文件目录（相对项目根目录）
+      logger: true, // 是否在控制台打印 mock 请求日志
     }),
-    tailwindcss(),
+    // 原子化 CSS 引擎（UnoCSS）
+    UnoCSS(),
   ],
+
+  // 路径别名配置：使用 '@' 指向 src 目录，便于在项目中导入
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+
+  // 开发服务器配置
   server: {
-    host: '0.0.0.0',
+    host: '0.0.0.0', // 对外可访问（例如在局域网调试）
     port: 3000,
-    open: true,
+    open: true, // 启动时自动打开浏览器
     proxy: {
+      // 将以 /api 开头的请求代理到后端服务（方便本地开发跨域）
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -53,13 +69,16 @@ export default defineConfig({
       },
     },
   },
+
+  // 构建相关配置
   build: {
-    outDir: 'dist', // 输出目录
+    outDir: 'dist', // 打包输出目录
     assetsDir: 'assets', // 静态资源目录
-    sourcemap: true, // 生成sourceMap文件
-    minify: 'terser', // 压缩方式
+    sourcemap: true, // 生成 source map 便于定位错误（可在生产环境关闭）
+    minify: 'terser', // 使用 terser 进行代码压缩
     rollupOptions: {
       output: {
+        // 手动拆分代码块，优化缓存与首屏加载
         manualChunks: {
           vue: ['vue', 'vue-router', 'pinia'],
           element: ['element-plus'],

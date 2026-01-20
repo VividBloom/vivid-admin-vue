@@ -1,3 +1,8 @@
+<!--
+  应用头部组件 AppHeader
+  - 包含侧边栏折叠按钮、面包屑、主题切换、刷新、全屏、消息与用户菜单
+  - 负责触发全局刷新、路由跳转与用户相关交互
+-->
 <template>
   <el-header class="header-container">
     <div class="header-left">
@@ -90,7 +95,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+// 头部组件逻辑与交互说明
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -114,104 +120,91 @@ const userStore = useUserStore()
 const tagsViewStore = useTagsViewsStore()
 const appStore = useAppStore()
 
-// 直接使用 store 中的状态
+// 从 appStore 获取主题相关状态与切换方法
 const { isDark, toggleDark, themeName } = appStore
 
-// 全屏状态
+// 全屏状态与未读消息数量等本地状态
 const isFullscreen = ref(false)
-// 未读消息数量
 const unreadCount = ref(3)
-// 面包屑导航列表
+
+// 面包屑：路由中带有 meta.title 的项
 const breadcrumbList = computed(() => {
   const matched = route.matched.filter(item => item.meta?.title)
-  return matched.slice(1) // 去掉首页
+  return matched.slice(1) // 去掉首页，返回从一级菜单开始的面包屑
 })
 
-// 切换主题
+// 切换主题（暗/亮）
 const toggleTheme = () => {
   toggleDark()
-  console.log(`主题已切换到: ${isDark ? '暗黑模式' : '亮色模式'}, ${themeName}`)
 }
 
+// 刷新相关状态
 const isRefreshing = ref(false)
 const isMobile = ref(false)
 
-// 检测是否移动端
+// 检测是否为移动端（简单宽度判断）
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth < 768
 }
 
+// 刷新当前页面：优先使用注入或全局方法，否则通过路由带时间戳强制刷新
 const handleRefresh = async () => {
-  if (isRefreshing.value) {
-    return
-  }
+  if (isRefreshing.value) return
   try {
     isRefreshing.value = true
-    // 获取当前路由信息
     const currentPage = route.fullPath
-    const currentName = route.name as string
     if (!currentPage) {
       ElMessage.warning('无法获取当前页面信息')
       return
     }
-    console.log(`🔄 开始刷新页面: ${currentPage}`)
-    // ✅ 1. 使用 markViewForRefresh 标记页面需要刷新
+
+    // 使用 tagsViewStore 标记当前页面需要刷新（组件内会通过 refreshFlag 使用该标记）
     tagsViewStore.markViewForRefresh(currentPage)
-    // 显示刷新状态
-    ElMessage.info({
-      message: '页面刷新中....',
-      duration: 1000,
-    })
-    // 如果有注入的刷新方法，优先使用
+
+    ElMessage.info({ message: '页面刷新中....', duration: 1000 })
+
+    // 优先尝试页面内注入的刷新方法，否则通过路由替换来刷新
     if (typeof (window as any).reloadCurrentPage === 'function') {
       await (window as any).reloadCurrentPage()
     } else {
-      // 否则使用路由重定向方式刷新
-      await router.replace({
-        path: currentPage,
-        query: { _t: Date.now() },
-      })
+      await router.replace({ path: currentPage, query: { _t: Date.now() } })
     }
-    // 刷新完成反馈
-    setTimeout(() => {
-      ElMessage.success('页面刷新完成')
-    }, 600)
+
+    setTimeout(() => ElMessage.success('页面刷新完成'), 600)
   } catch (e) {
     console.error('刷新失败: ', e)
     ElMessage.error('刷新失败')
   } finally {
-    // 延迟清除刷新状态, 让用户看到动画效果
+    // 延迟清除刷新状态并清理刷新标记，保留短暂的视觉反馈
     setTimeout(() => {
       isRefreshing.value = false
-      // 清除刷新标记
       const currentPath = route.fullPath
       if (currentPath) {
-        setTimeout(() => {
-          tagsViewStore.clearRefreshFlag(currentPath)
-        }, 2000)
+        setTimeout(() => tagsViewStore.clearRefreshFlag(currentPath), 2000)
       }
     }, 1000)
   }
 }
 
+// 键盘刷新拦截（例如 F5 或 Ctrl+R）
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
-    event.preventDefault() // 阻止浏览器默认刷新行为
+    event.preventDefault()
     handleRefresh()
   }
 }
 
 onMounted(() => {
-  // 添加键盘事件监听
+  // 添加键盘与窗口尺寸监听
   document.addEventListener('keydown', handleKeydown)
   window.addEventListener('resize', checkIsMobile)
   checkIsMobile()
 })
 
-onMounted(() => {
-  // 清理事件监听
+onUnmounted(() => {
+  // 组件卸载时清理事件监听
   document.removeEventListener('keydown', handleKeydown)
-  document.removeEventListener('resize', checkIsMobile)
+  window.removeEventListener('resize', checkIsMobile)
 })
 
 // 切换全屏
@@ -227,16 +220,9 @@ const toggleFullScreen = () => {
   }
 }
 
-// 跳转到个人中心
-const toProfile = () => {
-  router.push('/system/profile')
-}
-
-// 打开系统设置
-const openSettings = () => {
-  // 可以打开设置弹窗或跳转到设置页面
-  ElMessage.info('打开系统设置')
-}
+// 页面跳转与用户菜单操作
+const toProfile = () => router.push('/system/profile')
+const openSettings = () => ElMessage.info('打开系统设置')
 
 const handleLogout = async () => {
   try {
@@ -247,7 +233,7 @@ const handleLogout = async () => {
     })
 
     await userStore.logout()
-    ElMessage.success('退出碾')
+    ElMessage.success('已退出登录')
     router.push('/login')
   } catch (error) {
     console.warn('用户取消退出')

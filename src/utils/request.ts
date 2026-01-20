@@ -1,3 +1,8 @@
+/**
+ * 网络请求封装（基于 axios）
+ * - 统一处理请求拦截、响应拦截与错误提示
+ * - 返回统一的 ResponseData<T> 类型，便于上层调用时进行处理
+ */
 import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
@@ -7,7 +12,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 import { useUserStore } from '@/stores/user'
 
-// 定义响应数据类型
+// 定义响应数据类型，后端返回数据应符合此结构
 export interface ResponseData<T = any> {
   code: number
   message: string
@@ -24,7 +29,7 @@ class Request {
   }
 
   private setupInterceptors(): void {
-    // 请求拦截器
+    // 请求拦截器：注入 Authorization token
     this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const userStore = useUserStore()
@@ -39,6 +44,7 @@ class Request {
       }
     )
 
+    // 响应拦截器：对业务错误进行统一提示与处理
     this.instance.interceptors.response.use(
       (response: AxiosResponse) => {
         const { data } = response
@@ -103,7 +109,7 @@ class Request {
     })
   }
 
-  // 请求方法
+  // 请求方法封装，均返回 ResponseData<T>
   public get<T = any>(url: string, config?: InternalAxiosRequestConfig): Promise<ResponseData<T>> {
     return this.instance.get(url, config)
   }
@@ -132,13 +138,13 @@ class Request {
   }
 }
 
-// 创建请求实例
+// 创建请求实例，baseURL 支持通过环境变量覆盖
 const request = new Request({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  },
+  } as any,
 })
 
 export default request

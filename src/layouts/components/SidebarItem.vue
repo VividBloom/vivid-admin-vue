@@ -1,3 +1,8 @@
+<!--
+  辅助组件 SidebarItem
+  - 递归渲染菜单项：支持无子菜单的 `el-menu-item` 与含子菜单的 `el-sub-menu`
+  - 接受一个 `item` prop，结构包含 path、meta.title、可选的 children
+-->
 <template>
   <!-- 没有子菜单的菜单项 -->
   <el-menu-item v-if="!item.children || item.children.length === 0" :index="item.path">
@@ -24,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+// 菜单项类型定义与 Props 说明
 interface MenuItem {
   path: string
   meta?: {

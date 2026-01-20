@@ -74,7 +74,7 @@ const initializeApp = async (): Promise<void> => {
     // 5. 监听窗口变化（响应式布局需要）
     setupWindowListener()
 
-    console.log('🚀 应用初始化完成')
+    // console.log('🚀 应用初始化完成')
   } catch (error) {
     console.error('❌ 应用初始化失败:', error)
   }

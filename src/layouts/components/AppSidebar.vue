@@ -1,3 +1,8 @@
+<!--
+  侧边栏组件 AppSidebar
+  - 渲染应用的侧边导航，支持折叠模式与动态菜单数据
+  - 通过 `collapse` prop 控制迷你模式显示
+-->
 <template>
   <el-aside
     :width="sidebarWidth"
@@ -36,7 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Prop } from 'vue'
+// 侧边栏脚本说明：负责根据应用配置渲染菜单并暴露折叠切换事件
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 
@@ -54,11 +60,11 @@ defineEmits<{
 const route = useRoute()
 const appStore = useAppStore()
 
-// 计算侧边栏宽度
+// 根据折叠状态动态设置侧边栏宽度
 const sidebarWidth = computed(() => (props.collapse ? '64px' : '200px'))
-// 当前激活的菜单
+// 当前激活菜单项（用于 el-menu 的默认高亮）
 const activeMenu = computed(() => route.path)
-// 菜单路由数据
+// 从应用 store 中读取菜单路由配置
 const menuRoutes = computed(() => appStore.menuRoutes)
 </script>
 

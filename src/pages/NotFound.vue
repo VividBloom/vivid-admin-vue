@@ -1,3 +1,7 @@
+<!--
+  404 页面 NotFound
+  - 简单的空页面提示，并提供返回首页按钮
+-->
 <template>
   <div class="not-found">
     <el-result icon="warning" title="404" sub-title="抱歉，您访问的页面不存在">

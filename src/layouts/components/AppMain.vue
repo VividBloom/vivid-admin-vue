@@ -1,9 +1,14 @@
+<!--
+  主内容区域组件 AppMain
+  - 负责渲染路由出口，支持 keep-alive 缓存与基于刷新标记的局部刷新策略
+  - 提供 `reloadCurrentPage` 给子组件用于触发刷新
+-->
 <template>
   <el-main ref="scrollContainerRef" class="main-container">
-    <router-view v-slot="{ Component, route }">
+    <router-view v-slot="{ Component, route: slotRoute }">
       <transition name="fade-transform" mode="out-in">
         <keep-alive :include="cachedViews">
-          <component :is="Component" :key="componentKey(route)" ref="pageComponentRef" />
+          <component :is="Component" :key="componentKey(slotRoute)" ref="pageComponentRef" />
         </keep-alive>
       </transition>
     </router-view>
@@ -11,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, provide, watch } from 'vue'
+// 主内容区：负责渲染路由组件，支持 keep-alive 缓存以及基于刷新标记的局部刷新
+import { ref, computed, nextTick, provide, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTagsViewsStore } from '@/stores/tagsView'
 import { useScrollRecover } from '@/composables/useScrollRecover'
@@ -21,84 +27,60 @@ const tagsViewStore = useTagsViewsStore()
 
 const pageComponentRef = ref()
 
-const scrollContainerRef = ref(null) // 引用正确的滚动容器
+// 主滚动容器引用（用于滚动恢复）
+const scrollContainerRef = ref<any>(null)
 
-// 组件刷新控制
+// 组件刷新控制（可以用来记录每个路由的刷新状态）
 const refreshMap = ref<Record<string, number>>({})
 
-// 缓存的视图组件
+// 从 tagsViewStore 获取需要缓存的组件名列表（用于 keep-alive include）
 const cachedViews = computed(() => tagsViewStore.cachedViews || [])
 
-// 计算组件 key - 通过时间戳实现强制刷新
+// 通过组合路由路径与刷新标记生成组件 key，刷新标记变化时强制重新渲染组件
 const componentKey = (routeObj: any) => {
   const routePath = routeObj?.fullPath || routeObj?.path || route.fullPath
-
   if (!routePath) return 'default-key'
-
-  // ✅ 使用 getRefreshFlag 获取刷新标记
   const refreshFlag = tagsViewStore.getRefreshFlag(routePath)
-  // 组合路由路径和刷新标记作为key
   return `${routePath}-${refreshFlag}`
 }
 
-// 动态key, 刷新法
+// 刷新方法一：通过设置刷新标记并派发事件，页面组件会根据标记变化更新 key
 const refreshByKey = async () => {
   const currentPage = route.fullPath
   if (!currentPage) {
     console.warn('无法获取当前路由路径')
     return
   }
-  // ✅ 使用 markViewForRefresh 标记当前页面需要刷新
   tagsViewStore.markViewForRefresh(currentPage)
-  // 添加一个小的延迟, 确保标记被应用
   await new Promise(resolve => setTimeout(resolve, 50))
   window.dispatchEvent(
-    new CustomEvent('page-refreshed', {
-      detail: {
-        path: currentPage,
-        timestamp: Date.now(),
-      },
-    })
+    new CustomEvent('page-refreshed', { detail: { path: currentPage, timestamp: Date.now() } })
   )
-  console.log('✅ 通过动态 Key 刷新页面')
   await nextTick()
 }
 
-// 方法二：状态控制刷新法
+// 刷新方法二：通过派发全局事件或状态控制来触发子组件刷新（可选实现）
 const refreshByMethod = async () => {
-  // 这里可以通过事件总线或 provide/inject 调用组件的刷新方法
-  console.log('✅ 通过状态控制刷新页面')
-  // 触发全局刷新事件
   const event = new CustomEvent('page-refresh', { detail: { path: route.path } })
   window.dispatchEvent(event)
 }
 
-// 提供刷新方法给子组件
+// 提供给子组件的刷新接口（默认使用 refreshByKey）
 const reloadCurrentPage = async () => {
-  // 默认使用方法一
   await refreshByKey()
 }
 
-// 提供刷新方法给子组件使用
 provide('reloadCurrentPage', reloadCurrentPage)
 
-// ✅ 监听页面刷新完成事件
+// 监听页面刷新完成事件，清理刷新标记
 const handlePageRefreshed = (event: CustomEvent) => {
-  const { path, timestamp } = event.detail
-  console.log(`页面刷新完成事件: ${path} at ${timestamp}`)
-
-  // 刷新完成后, 可以选择延迟清除标记
-  setTimeout(() => {
-    tagsViewStore.clearRefreshFlag(path)
-  })
+  const { path } = event.detail
+  setTimeout(() => tagsViewStore.clearRefreshFlag(path))
 }
 
 onMounted(() => {
-  // 使用滚动恢复 Hook
-  useScrollRecover(ref(scrollContainerRef.value?.$el), {
-    throttleDelay: 150,
-  })
-
+  // 启用滚动恢复功能（保持页面滚动位置）
+  useScrollRecover(ref(scrollContainerRef.value?.$el), { throttleDelay: 150 })
   window.addEventListener('page-refreshed', handlePageRefreshed as EventListener)
 })
 
@@ -106,17 +88,13 @@ onUnmounted(() => {
   window.removeEventListener('page-refreshed', handlePageRefreshed as EventListener)
 })
 
-// 监听路由变化，更新 reloadMap
+// 路由变化时，清理旧路由的刷新标记并维护 refreshMap
 watch(
   () => route.fullPath,
   (newFullPath, oldPath) => {
     if (oldPath) {
-      setTimeout(() => {
-        // 自动清除过期的刷新标记
-        tagsViewStore.clearRefreshFlag(oldPath)
-      })
+      setTimeout(() => tagsViewStore.clearRefreshFlag(oldPath))
     }
-    // 确保每个路由都有唯一的key
     if (refreshMap.value[newFullPath]) {
       refreshMap.value[newFullPath] = 0
     }

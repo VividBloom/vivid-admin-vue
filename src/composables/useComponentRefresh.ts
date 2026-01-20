@@ -15,7 +15,7 @@ export function useComponentRefresh() {
 
     try {
       // 这里可以调用组件的数据加载方法
-      console.log('组件数据刷新中...')
+      // console.log('组件数据刷新中...')
       // 模拟异步操作
       await new Promise(resolve => setTimeout(resolve, 300))
     } finally {

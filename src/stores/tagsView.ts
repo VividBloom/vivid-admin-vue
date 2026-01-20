@@ -1,3 +1,8 @@
+/**
+ * 标签页（TagsView）状态管理
+ * - 记录已访问的路由标签、缓存路由名以及刷新标记
+ * - 支持添加/删除/保留固定标签（affix）等常见操作
+ */
 import { defineStore } from 'pinia'
 import type { RouteLocationNormalized } from 'vue-router'
 
@@ -22,14 +27,14 @@ export const useTagsViewsStore = defineStore('tagsView', {
   }),
 
   getters: {
-    // 当前激活的标签
+    // 当前激活的标签（基于浏览器路径匹配）
     activeView: state => {
       return state.visitedViews.find(view => view.path === window.location.pathname)
     },
   },
 
   actions: {
-    // 添加标签
+    // 添加标签（仅对设置了 keepAlive 的路由生效）
     addView(view: RouteLocationNormalized) {
       if (!view.meta?.keepAlive) {
         return
@@ -50,7 +55,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
         this.visitedViews = this.visitedViews.sort((v1, v2) => v1.seq - v2.seq)
       }
 
-      // 检查是否已存在
+      // 检查是否已存在，存在则更新（保留原序号）
       const index = this.visitedViews.findIndex(v => v.path === view.path)
       if (index >= 0) {
         const oldSeq = this.visitedViews[index]?.seq || 0
@@ -62,12 +67,12 @@ export const useTagsViewsStore = defineStore('tagsView', {
       // 添加新标签
       this.visitedViews.push(tagView)
 
-      // 添加到缓存视图(如果需要)
+      // 如果需要缓存该页面组件，则将其 name 加入缓存列表
       if (view.meta?.keepAlive && view.name) {
         this.addCachedView(view.name as string)
       }
     },
-    // 删除标签
+    // 删除标签，返回 Promise 以便在外部等待动画或路由切换
     delView(view: TagView) {
       return new Promise<boolean>(resolve => {
         const index = this.visitedViews.findIndex(v => v.path === view.path)
@@ -85,7 +90,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       })
     },
 
-    // 删除其他标签
+    // 删除除当前标签外的所有非 affix 标签
     delOtherViews(view: TagView) {
       this.visitedViews = this.visitedViews.filter(v => v.affix || v.path === view.path)
 
@@ -93,7 +98,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       this.cachedViews = this.visitedViews.filter(v => v.name).map(v => v.name as string)
     },
 
-    // 删除左侧标签
+    // 删除左侧标签（保留 affix 和当前及其右侧）
     delLeftViews(view: TagView) {
       const index = this.visitedViews.findIndex(v => v.path === view.path)
       if (index > 0) {
@@ -102,7 +107,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       }
     },
 
-    // 删除右侧标签
+    // 删除右侧标签（保留 affix 和当前及其左侧）
     delRightViews(view: TagView) {
       const index = this.visitedViews.findIndex(v => v.path === view.path)
       if (index < this.visitedViews.length - 1) {
@@ -111,13 +116,13 @@ export const useTagsViewsStore = defineStore('tagsView', {
       }
     },
 
-    // 删除全部标签
+    // 删除全部非 affix 标签
     delAllViews() {
       this.visitedViews = this.visitedViews.filter(v => v.affix)
       this.cachedViews = []
     },
 
-    // 添加缓存视图
+    // 添加缓存视图（组件名）
     addCachedView(name: string) {
       if (this.cachedViews.includes(name)) {
         return
@@ -135,7 +140,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       }
     },
 
-    // 更新缓存视图
+    // 更新缓存视图为当前 visitedViews 中非 affix 的页面名
     updateCachedView() {
       this.cachedViews = this.visitedViews
         .filter(v => v.name && !v.affix)
@@ -143,7 +148,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
     },
 
     // ✅ 刷新视图相关方法
-    // 标记页面需要刷新
+    // 标记页面需要刷新（通过时间戳作为标记）
     markViewForRefresh(path: string) {
       this.refreshFlags[path] = Date.now()
     },
@@ -153,7 +158,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       delete this.refreshFlags[path]
     },
 
-    // 获取刷新标记
+    // 获取刷新标记（返回时间戳或 0）
     getRefreshFlag(path: string) {
       return this.refreshFlags[path] || 0
     },

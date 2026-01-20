@@ -1,3 +1,9 @@
+<!--
+  仪表盘页面 Dashboard
+  - 展示关键指标、图表与实时交易表格
+  - 支持通过 tagsView 的刷新标记进行局部刷新（不会整页重载）
+  - 使用 echarts 渲染图表，提供 lifecycle 钩子进行初始化与销毁
+-->
 <template>
   <div ref="scrollContainerRef" class="dashboard-container">
     <!-- 页面标题和快捷操作 -->
@@ -162,7 +168,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
 
@@ -185,11 +192,11 @@ interface Transaction {
 
 const route = useRoute()
 
-// ✅ 使用方法二的状态控制刷新
+// 使用组件刷新 Hook：提供给父组件通过 expose 调用的本地刷新逻辑
 const { refreshComponent } = useComponentRefresh()
 const tagsViewStore = useTagsViewsStore()
 
-// ✅ 计算组件 key，包含刷新标记
+// 计算组件 key：包含 tagsView 的刷新标记，标记变化时可触发局部重新加载
 const componentKey = computed(() => {
   const refreshFlag = tagsViewStore.getRefreshFlag(route.fullPath)
   return `dashboard-${refreshFlag}`
@@ -199,7 +206,7 @@ watch(
   () => tagsViewStore.getRefreshFlag(route.fullPath),
   (newFlag, oldFlag) => {
     if (newFlag > oldFlag) {
-      console.log('Dashboard 页面检测到刷新标记变化，重新加载数据')
+      // 当刷新标记增加时，重新加载数据（实现局部刷新而不是整页重载）
       loadDashboardData()
     }
   }
@@ -276,7 +283,7 @@ const loadRealTimeData = async () => {
   }
 }
 
-const getStatusType = (status: string) => {
+const getStatusType = (status: string): any => {
   const map: { [key: string]: string } = {
     success: 'success',
     pending: 'warning',
@@ -426,7 +433,7 @@ const loadDashboardData = async () => {
     await refreshData()
     await loadRealTimeData()
 
-    console.log('仪表板数据加载完成')
+    // console.log('仪表板数据加载完成')
   } catch (error) {
     console.error('加载仪表板数据失败:', error)
     ElMessage.error('数据加载失败')
@@ -438,6 +445,7 @@ const loadDashboardData = async () => {
 // 暴露刷新方法给父组件
 defineExpose({
   reload: () => {
+    // 父组件可调用此方法触发仪表盘内部的刷新逻辑
     return refreshComponent()
   },
 })

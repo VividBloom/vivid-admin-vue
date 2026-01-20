@@ -1,3 +1,8 @@
+<!--
+  用户列表页面 UserList
+  - 展示用户表格，支持查看详情与跳转到创建用户页面（示例）
+  - 数据为模拟示例，实际项目应通过 API 拉取
+-->
 <template>
   <div class="user-list">
     <el-card>
@@ -32,38 +37,37 @@ const router = useRouter()
 const loading = ref(false)
 const userList = ref<any[]>([])
 
-defineOptions({
-  name: 'UserList',
-})
+defineOptions({ name: 'UserList' })
 
-// 查看用户详情，使用编程式导航[3](@ref)
+// 查看用户详情（示例）：可使用路径或命名路由两种方式
 const viewDetail = (userId: number) => {
-  // 方式1: 路径导航
-  // router.push(`/system/user/${userId}`)
-
-  // 方式2: 命名路由导航[1,3](@ref)
-  router.push({
-    name: 'UserDetail',
-    params: { id: userId },
-  })
+  router.push({ name: 'UserDetail', params: { id: userId } })
 }
 
-const handleCreate = () => {
-  // 跳转到创建用户页面
-  router.push({ name: 'UserCreate' })
-}
+// 新增用户跳转（示例路由）
+const handleCreate = () => router.push({ name: 'UserCreate' })
 
-onMounted(() => {
-  loadUserList()
-})
+onMounted(() => loadUserList())
 
+// 加载用户列表（此处为模拟数据）
 const loadUserList = async () => {
   loading.value = true
-  // 模拟API调用
   setTimeout(() => {
     userList.value = [
       {
         id: 1,
+        username: 'admin',
+        email: 'admin@example.com',
+        role: '管理员',
+        createTime: '2025-01-01',
+      },
+      {
+        id: 2,
+        username: 'user1',
+        email: 'user1@example.com',
+        role: '普通用户',
+        createTime: '2025-01-02',
+
         username: 'admin',
         email: 'admin@example.com',
         role: '管理员',

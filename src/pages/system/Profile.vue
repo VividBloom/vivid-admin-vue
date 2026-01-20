@@ -1,3 +1,8 @@
+<!--
+  个人资料页面 Profile
+  - 展示并编辑当前用户的基本信息
+  - 支持修改密码并进行表单校验与提示
+-->
 <template>
   <div class="profile-container">
     <!-- 个人信息卡片 -->
@@ -109,7 +114,7 @@ import { useUserStore } from '@/stores/user'
 
 // 类型定义
 interface ProfileForm {
-  id: string
+  id: number
   username: string
   email: string
   phone: string
@@ -134,7 +139,7 @@ const userStore = useUserStore()
 
 // 表单数据
 const profileForm = reactive<ProfileForm>({
-  id: '',
+  id: 0,
   username: '',
   email: '',
   phone: '',
@@ -197,35 +202,26 @@ const passwordRules: FormRules = {
   ],
 }
 
-// 方法定义
+// 方法定义：编辑、重置、保存个人信息与修改密码
 const toggleEditMode = () => {
   isEditMode.value = !isEditMode.value
-  if (!isEditMode.value) {
-    resetForm()
-  }
+  if (!isEditMode.value) resetForm()
 }
 
+// 将表单重置为当前用户信息的值
 const resetForm = () => {
-  // 重置表单到初始值
-  Object.assign(profileForm, userStore.userInfo)
-  if (profileFormRef.value) {
-    profileFormRef.value.clearValidate()
-  }
+  if (userStore.userInfo) Object.assign(profileForm, userStore.userInfo)
+  if (profileFormRef.value) profileFormRef.value.clearValidate()
 }
 
+// 保存个人信息：校验表单后更新 store（此处为模拟 API）
 const handleSaveProfile = async () => {
   if (!profileFormRef.value) return
-
   try {
     const valid = await profileFormRef.value.validate()
     if (!valid) return
-
-    // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // 更新用户信息
     userStore.updateUserInfo(profileForm)
-
     ElMessage.success('个人信息更新成功')
     isEditMode.value = false
   } catch (error) {
@@ -233,46 +229,25 @@ const handleSaveProfile = async () => {
   }
 }
 
+// 修改密码：校验后显示确认对话框并调用登出（模拟场景）
 const handleChangePassword = async () => {
   if (!passwordFormRef.value) return
-
   try {
     const valid = await passwordFormRef.value.validate()
     if (!valid) return
-
     passwordLoading.value = true
-
-    // 确认对话框
     await ElMessageBox.confirm('确定要修改密码吗？修改后需要重新登录。', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
     })
-
-    // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // 清空密码表单
-    Object.assign(passwordForm, {
-      oldPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    })
-
-    if (passwordFormRef.value) {
-      passwordFormRef.value.resetFields()
-    }
-
+    Object.assign(passwordForm, { oldPassword: '', newPassword: '', confirmPassword: '' })
+    if (passwordFormRef.value) passwordFormRef.value.resetFields()
     ElMessage.success('密码修改成功，请重新登录')
-
-    // 延迟跳转到登录页
-    setTimeout(() => {
-      userStore.logout()
-    }, 2000)
+    setTimeout(() => userStore.logout(), 2000)
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('密码修改失败，请检查原密码是否正确')
-    }
+    if (error !== 'cancel') ElMessage.error('密码修改失败，请检查原密码是否正确')
   } finally {
     passwordLoading.value = false
   }
@@ -281,7 +256,9 @@ const handleChangePassword = async () => {
 // 生命周期
 onMounted(() => {
   // 初始化表单数据
-  Object.assign(profileForm, userStore.userInfo)
+  if (userStore.userInfo) {
+    Object.assign(profileForm, userStore.userInfo)
+  }
 })
 </script>
 
