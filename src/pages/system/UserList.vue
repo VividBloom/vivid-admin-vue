@@ -97,7 +97,7 @@
             :data="permissionTree"
             show-checkbox
             node-key="id"
-            :props="{ label: 'name', children: 'children' }"
+            :props="treeProps"
             :default-checked-keys="userForm.permissionIds"
             @check="handlePermissionCheck"
           />
@@ -128,6 +128,12 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const router = useRouter()
+
+// 树形控件配置
+const treeProps = {
+  label: (data: any) => t(data.name),
+  children: 'children',
+}
 
 // 响应式数据
 const loading = ref(false)

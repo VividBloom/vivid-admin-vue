@@ -31,7 +31,7 @@
             v-loading="treeLoading"
             :data="permissionTree"
             node-key="id"
-            :props="{ label: 'name', children: 'children' }"
+            :props="treeProps"
             highlight-current
             default-expand-all
             @node-click="handleTreeNodeClick"
@@ -84,7 +84,11 @@
           </template>
 
           <el-table v-loading="listLoading" :data="filteredPermissions" style="width: 100%">
-            <el-table-column prop="name" :label="$t('permission.name')" min-width="140" />
+            <el-table-column prop="name" :label="$t('permission.name')" min-width="140">
+              <template #default="scope">
+                {{ $t(scope.row.name) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="code" :label="$t('permission.code')" min-width="140" />
             <el-table-column prop="type" :label="$t('permission.type')" width="100">
               <template #default="scope">
@@ -155,7 +159,7 @@
           <el-tree-select
             v-model="form.parentId"
             :data="permissionTree"
-            :props="{ label: 'name', children: 'children' }"
+            :props="treeProps"
             :placeholder="$t('permission.selectParent')"
             clearable
             check-strictly
@@ -197,6 +201,12 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const permissionStore = usePermissionStore()
+
+// 树形控件配置
+const treeProps = {
+  label: (data: any) => t(data.name),
+  children: 'children',
+}
 
 // 加载状态
 const treeLoading = ref(false)
@@ -246,7 +256,9 @@ const filteredPermissions = computed(() => {
     .filter(p => (filter.status ? p.status === filter.status : true))
     .filter(p =>
       filter.keyword
-        ? [p.name, p.code].some(text => text?.toLowerCase().includes(filter.keyword.toLowerCase()))
+        ? [t(p.name), p.name, p.code].some(text =>
+            text?.toLowerCase().includes(filter.keyword.toLowerCase())
+          )
         : true
     )
     .filter(p => (filter.parentId ? p.parentId === filter.parentId : true))
@@ -322,11 +334,15 @@ const editPermission = (p: API.Permission) => {
 // 删除权限
 const deletePermission = async (p: API.Permission) => {
   try {
-    await ElMessageBox.confirm(t('permission.confirmDelete', { name: p.name }), t('app.confirm'), {
-      confirmButtonText: t('app.ok'),
-      cancelButtonText: t('app.cancel'),
-      type: 'warning',
-    })
+    await ElMessageBox.confirm(
+      t('permission.confirmDelete', { name: t(p.name) }),
+      t('app.confirm'),
+      {
+        confirmButtonText: t('app.ok'),
+        cancelButtonText: t('app.cancel'),
+        type: 'warning',
+      }
+    )
     await permissionApi.deletePermission(p.id!)
     ElMessage.success(t('userList.deleteSuccess'))
     await reloadPermissions()

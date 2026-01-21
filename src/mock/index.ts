@@ -1,15 +1,12 @@
-// src/mock/index.ts
 import type { MockMethod } from 'vite-plugin-mock'
-// 导入来自 mock-server 的接口规则
-import {
-  userMocks,
-  dashboardMocks,
-  commonMocks,
-  userManagementMocks,
-  permissionMocks,
-  roleMocks,
-  userRoleMocks,
-} from './mock-server'
+
+import { userMocks } from './auth'
+import { dashboardMocks } from './dashboard'
+import { commonMocks } from './common'
+import { userManagementMocks, userRoleMocks } from './user'
+import { permissionMocks } from './permission'
+import { roleMocks } from './role'
+
 // 将所有 Mock 接口规则合并到一个数组中并导出
 export default [
   ...userMocks,
