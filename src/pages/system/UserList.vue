@@ -7,10 +7,33 @@
   <div class="user-management">
     <div class="page-header">
       <h2>{{ $t('userList.title') }}</h2>
-      <el-button v-permission="'system:user'" type="primary" @click="handleCreate">
-        <el-icon><div class="i-ep-plus" /></el-icon>
-        {{ $t('userList.newUser') }}
-      </el-button>
+      <div class="flex gap-2">
+        <el-button v-permission="'system:user'" type="primary" @click="handleCreate">
+          <el-icon>
+            <div class="i-ep-plus" />
+          </el-icon>
+          {{ $t('userList.newUser') }}
+        </el-button>
+        <el-button type="success" @click="handleExport">
+          <el-icon>
+            <div class="i-ep-download" />
+          </el-icon>
+          {{ $t('common.export') }}
+        </el-button>
+        <el-upload
+          action=""
+          :show-file-list="false"
+          :before-upload="handleBeforeUpload"
+          accept=".xlsx, .xls"
+        >
+          <el-button type="warning">
+            <el-icon>
+              <div class="i-ep-upload" />
+            </el-icon>
+            {{ $t('common.import') }}
+          </el-button>
+        </el-upload>
+      </div>
     </div>
 
     <el-card class="content-card" shadow="never">
@@ -128,6 +151,7 @@
 import { ref, reactive, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { exportExcel, readExcel } from '@/utils/excel'
 import { roleApi, permissionApi, userApi } from '@/api'
 import { useI18n } from 'vue-i18n'
 import { useCurd } from '@/composables/useCurd'
@@ -208,6 +232,43 @@ const {
   deleteApi: userApi.deleteUser,
   immediate: false,
 })
+
+// 导出 Excel
+const handleExport = () => {
+  const header = [
+    { key: 'id', title: t('userList.id') },
+    { key: 'username', title: t('userList.username') },
+    { key: 'email', title: t('userList.email') },
+    { key: 'phone', title: t('userList.phone') },
+    { key: 'status', title: t('userList.status') },
+    { key: 'createTime', title: t('userList.createTime') },
+  ]
+  const data = userList.value.map((user: any) => ({
+    ...user,
+    status: user.status === 'active' ? t('userList.enable') : t('userList.disable'),
+  }))
+  exportExcel({
+    header,
+    data,
+    filename: 'user-list',
+  })
+}
+
+// 导入 Excel
+const handleBeforeUpload = async (file: File) => {
+  try {
+    const data = await readExcel(file)
+    console.log('Imported data:', data)
+    ElMessage.success(t('common.importSuccess') + `: ${data.length} items`)
+    // TODO: 调用批量创建 API
+    // await userApi.batchCreateUser(data)
+    loadUserList()
+  } catch (error) {
+    console.error(error)
+    ElMessage.error(t('common.importFailed'))
+  }
+  return false
+}
 
 const currentUser = ref<any>(null)
 

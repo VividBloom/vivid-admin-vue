@@ -565,3 +565,72 @@ export default {
   ],
 }
 ```
+
+toolName: view_folder
+
+status: success
+
+/Users/blues/workspaces/sites/vue-admin/src
+
+toolName: view_files
+
+status: success
+
+filePath: /Users/blues/workspaces/sites/vue-admin/package.json
+
+基于目前的系统架构（Vue 3 + TypeScript + Element Plus + Pinia + Mock），并参考业界成熟的后台管理系统（如 vue-element-admin, vben-admin 等），我为您整理了以下**功能补全建议**。
+
+您可以根据项目的实际需求和优先级，选择需要实现的功能：
+
+### 1. 核心业务增强 (Business Features)
+
+- **操作日志 (Audit Logs)** `推荐`
+  - **描述**：记录用户的关键操作（如登录、新增、修改、删除），用于安全审计。
+  - **实现**：新建日志列表页面，展示操作人、IP、时间、操作内容、状态等。
+- **Excel 导入/导出 (Excel Import/Export)** `推荐`
+  - **描述**：支持将表格数据导出为 Excel，或通过 Excel 批量导入数据（如批量添加用户）。
+  - **实现**：引入 `xlsx` 库，封装通用的导出/导入函数。
+- **数据字典管理 (Dictionary Management)**
+  - **描述**：管理系统中通用的静态数据（如：用户状态、性别、订单类型等），避免硬编码。
+  - **实现**：新建字典管理页面，前端通过 Store 或 Hooks 获取字典数据。
+- **部门/组织架构 (Department/Organization)**
+  - **描述**：树形结构的部门管理，通常与用户和角色关联。
+  - **实现**：左侧树（部门）+ 右侧表（用户）的布局模式。
+
+### 2. 通用组件封装 (Component Features)
+
+- **富文本编辑器 (Rich Text Editor)**
+  - **描述**：发布公告、文章、CMS 内容管理必不可少。
+  - **实现**：集成 `wangEditor` 或 `TinyMCE`，封装为 `<Editor />` 组件。
+- **文件上传/资源库 (File Upload / Manager)**
+  - **描述**：支持图片、文件上传，以及上传后的文件列表管理。
+  - **实现**：封装支持拖拽、进度条、预览的上传组件。
+- **高级图表 (Advanced Charts)**
+  - **描述**：虽然已有 Dashboard，但可以增加更复杂的分析图表（地图、雷达图、漏斗图）。
+  - **实现**：基于 `echarts` 封装更多业务图表组件。
+
+### 3. 用户体验优化 (UI/UX)
+
+- **暗黑模式 / 主题配置 (Dark Mode / Theme)** `推荐`
+  - **描述**：支持一键切换暗黑模式，或自定义主题色（Primary Color）。
+  - **实现**：利用 Element Plus 的 CSS 变量和 `useDark` (VueUse) 实现。
+- **水印功能 (Watermark)**
+  - **描述**：在页面上显示包含用户名的水印，防止敏感截图外泄。
+  - **实现**：封装 `useWatermark` 组合式函数。
+- **异常页面 (Exception Pages)**
+  - **描述**：完善 403 (无权限)、500 (服务器错误) 页面，不仅仅是 404。
+  - **实现**：增加 `src/pages/error/403.vue` 等。
+- **消息通知中心 (Notification Center)**
+  - **描述**：Header 区域的铃铛图标，下拉展示系统消息、待办事项。
+  - **实现**：封装消息下拉组件，配合 Mock 数据。
+- **新手引导 (Guide/Tour)**
+  - **描述**：首次进入系统时，高亮关键区域引导用户操作。
+  - **实现**：引入 `driver.js`。
+
+### 4. 其它
+
+- **全屏控制 (Screenfull)**：Header 区域增加全屏切换按钮。
+- **建议的下一步**：
+  如果这是一个通用的基础模板，建议优先实现 **Excel 导入/导出** 和 **操作日志**，因为它们在几乎所有的后台系统中都是刚需。
+
+  **请告诉我您希望先实现哪一个（或哪几个）？**

@@ -42,6 +42,13 @@ export default {
     logoutCancelled: 'Logout cancelled',
     back: 'Back',
   },
+  common: {
+    export: 'Export Excel',
+    import: 'Import Excel',
+    importSuccess: 'Import Successful',
+    importFailed: 'Import Failed',
+    exportSuccess: 'Export Successful',
+  },
   login: {
     title: 'Vue3 Admin Login',
     subtitle: 'Please enter your details to sign in',

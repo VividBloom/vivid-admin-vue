@@ -42,6 +42,13 @@ export default {
     logoutCancelled: '用户取消退出',
     back: '返回',
   },
+  common: {
+    export: '导出 Excel',
+    import: '导入 Excel',
+    importSuccess: '导入成功',
+    importFailed: '导入失败',
+    exportSuccess: '导出成功',
+  },
   login: {
     title: 'Vue3 Admin 登录',
     subtitle: '请输入您的详细信息以登录',
