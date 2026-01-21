@@ -68,18 +68,7 @@
       </div>
 
       <!-- 消息通知 -->
-      <el-dropdown class="header-action" trigger="click">
-        <el-badge :value="unreadCount" :max="99">
-          <el-icon><div class="i-ep-bell" /></el-icon>
-        </el-badge>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item>{{
-              $t('app.unreadMessage', { count: unreadCount })
-            }}</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <Notice />
       <!-- 用户信息 -->
       <el-dropdown trigger="click">
         <span class="user-info">
@@ -120,6 +109,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useTagsViewsStore } from '@/stores/tagsView'
 import { useAppStore } from '@/stores/app'
 import SettingsDrawer from './SettingsDrawer.vue'
+import Notice from './Notice.vue'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
@@ -144,9 +134,8 @@ const { isDark, toggleDark, isSmallScreen } = appStore
 // 系统设置 Drawer 状态
 const settingsDrawerVisible = ref(false)
 
-// 全屏状态与未读消息数量等本地状态
+// 全屏状态
 const isFullscreen = ref(false)
-const unreadCount = ref(3)
 
 // 面包屑：路由中带有 meta.title 的项
 const breadcrumbList = computed(() => {

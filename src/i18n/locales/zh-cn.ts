@@ -17,6 +17,10 @@ export default {
     notFoundSubtitle: '抱歉，您访问的页面不存在',
     backToHome: '返回首页',
     untitled: '未命名',
+    '403': '无权访问',
+    '403Subtitle': '抱歉，您无权访问该页面',
+    '500': '服务器错误',
+    '500Subtitle': '抱歉，服务器出错了',
   },
   app: {
     title: 'Vue3 Admin',
@@ -188,6 +192,16 @@ export default {
     breadcrumb: '显示面包屑',
     zh: '中文',
     en: 'English',
+  },
+  notice: {
+    message: '通知',
+    task: '任务',
+    todo: '待办',
+    noMessage: '暂无通知',
+    noTask: '暂无任务',
+    noTodo: '暂无待办',
+    clear: '清空',
+    more: '查看更多',
   },
   userList: {
     title: '用户管理',

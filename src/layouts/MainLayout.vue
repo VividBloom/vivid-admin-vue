@@ -33,6 +33,8 @@ import { ref, provide, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { usePermissionStore } from '@/stores/permission'
+import { useUserStore } from '@/stores/user'
+import { useWatermark } from '@/composables/useWatermark'
 
 import AppSidebar from './components/AppSidebar.vue'
 import AppHeader from './components/AppHeader.vue'
@@ -41,6 +43,18 @@ import TagsView from './components/TagsView.vue'
 
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
+const userStore = useUserStore()
+const { setWatermark } = useWatermark()
+
+watch(
+  () => userStore.userInfo?.username,
+  username => {
+    if (username) {
+      setWatermark(username + ' - Vue3 Admin')
+    }
+  },
+  { immediate: true }
+)
 
 const { sidebarCollapsed: isSidebarCollapsed } = storeToRefs(appStore)
 
