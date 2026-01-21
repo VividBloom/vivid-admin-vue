@@ -113,7 +113,7 @@ export const permissions: API.Permission[] = [
     code: 'system:dict',
     type: 'menu',
     parentId: 1,
-    path: '/system/dictionary',
+    path: '/system/dict',
     icon: 'Collection',
     sort: 5,
     status: 'active',

@@ -8,7 +8,12 @@
   <div class="role-management">
     <div class="page-header">
       <h2>{{ $t('role.title') }}</h2>
-      <el-button v-permission="'system:role'" type="primary" @click="createRole">
+      <el-button
+        v-permission="'system:role'"
+        v-track="{ module: 'Role', action: 'Click Create Button' }"
+        type="primary"
+        @click="createRole"
+      >
         <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('role.new') }}
       </el-button>
@@ -31,6 +36,11 @@
           <template #default="scope">
             <el-button
               v-permission="'system:role'"
+              v-track="{
+                module: 'Role',
+                action: 'Click Edit Button',
+                details: `Edit Role ID: ${scope.row.id}`,
+              }"
               size="small"
               type="primary"
               @click="editRole(scope.row)"
@@ -39,6 +49,11 @@
             </el-button>
             <el-button
               v-permission="'system:permission'"
+              v-track="{
+                module: 'Role',
+                action: 'Click AssignPermission Button',
+                details: `Assign Permission to Role ID: ${scope.row.id}`,
+              }"
               size="small"
               type="success"
               @click="assignPermissions(scope.row)"
@@ -47,6 +62,11 @@
             </el-button>
             <el-button
               v-permission="'system:role'"
+              v-track="{
+                module: 'Role',
+                action: 'Click Delete Button',
+                details: `Delete Role ID: ${scope.row.id}`,
+              }"
               size="small"
               type="danger"
               @click="deleteRole(scope.row)"

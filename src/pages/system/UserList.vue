@@ -8,13 +8,22 @@
     <div class="page-header">
       <h2>{{ $t('userList.title') }}</h2>
       <div class="flex gap-2">
-        <el-button v-permission="'system:user'" type="primary" @click="handleCreate">
+        <el-button
+          v-permission="'system:user'"
+          v-track="{ module: 'User', action: 'Click Create Button' }"
+          type="primary"
+          @click="handleCreate"
+        >
           <el-icon>
             <div class="i-ep-plus" />
           </el-icon>
           {{ $t('userList.newUser') }}
         </el-button>
-        <el-button type="success" @click="handleExport">
+        <el-button
+          v-track="{ module: 'User', action: 'Click Export Button' }"
+          type="success"
+          @click="handleExport"
+        >
           <el-icon>
             <div class="i-ep-download" />
           </el-icon>
@@ -26,7 +35,7 @@
           :before-upload="handleBeforeUpload"
           accept=".xlsx, .xls"
         >
-          <el-button type="warning">
+          <el-button v-track="{ module: 'User', action: 'Click Import Button' }" type="warning">
             <el-icon>
               <div class="i-ep-upload" />
             </el-icon>
@@ -83,6 +92,11 @@
               <template #default="scope">
                 <el-button
                   v-permission="'system:user'"
+                  v-track="{
+                    module: 'User',
+                    action: 'Click Edit Button',
+                    details: `Edit User ID: ${scope.row.id}`,
+                  }"
                   size="small"
                   type="primary"
                   @click="editUser(scope.row)"
@@ -91,6 +105,11 @@
                 </el-button>
                 <el-button
                   v-permission="'system:user'"
+                  v-track="{
+                    module: 'User',
+                    action: 'Click Detail Button',
+                    details: `View User ID: ${scope.row.id}`,
+                  }"
                   size="small"
                   type="success"
                   @click="viewDetail(scope.row.id)"
@@ -99,6 +118,11 @@
                 </el-button>
                 <el-button
                   v-permission="'system:user'"
+                  v-track="{
+                    module: 'User',
+                    action: 'Click Delete Button',
+                    details: `Delete User ID: ${scope.row.id}`,
+                  }"
                   size="small"
                   type="danger"
                   @click="deleteUser(scope.row)"

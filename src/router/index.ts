@@ -163,6 +163,36 @@ router.beforeEach(async (to, from, next) => {
   }
 })
 
+// 路由后置守卫：记录页面访问日志
+router.afterEach(to => {
+  const userStore = useUserStore()
+  // 忽略登录页和未找到页
+  if (to.name !== 'Login' && to.name !== 'NotFound' && to.meta.title) {
+    // 尝试获取翻译后的标题，如果 i18n 不可用或 key 不存在，则回退到 raw title
+    let title = to.meta.title as string
+    try {
+      if (i18n.global.t) {
+        title = i18n.global.t(title)
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    import('@/api/log').then(({ logApi }) => {
+      logApi
+        .createLog({
+          module: 'Router',
+          action: 'Visit',
+          details: `Visit page: ${title}`,
+          status: 'success',
+          // @ts-ignore
+          username: userStore.userInfo?.username || 'admin',
+        })
+        .catch(() => {})
+    })
+  }
+})
+
 export const refreshCurrentRoute = async () => {
   const appStore = useAppStore()
   const currentPage = router.currentRoute.value.path

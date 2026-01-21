@@ -59,4 +59,26 @@ export const logMocks: MockMethod[] = [
       }
     },
   },
+  {
+    url: '/api/log/create',
+    method: 'post',
+    response: ({ body }: { body: any }) => {
+      const newLog = {
+        id: logs.list.length + 1,
+        username: body.username || 'admin',
+        module: body.module || 'Unknown',
+        action: body.action || 'Unknown',
+        ip: '127.0.0.1',
+        status: body.status || 'success',
+        createTime: new Date().toLocaleString(),
+        details: body.details || '',
+      }
+      logs.list.unshift(newLog)
+      return {
+        code: 200,
+        message: 'success',
+        data: newLog,
+      }
+    },
+  },
 ]

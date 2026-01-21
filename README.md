@@ -578,17 +578,6 @@ status: success
 
 filePath: /Users/blues/workspaces/sites/vue-admin/package.json
 
-[unocss] failed to load icon "ep-fullscreen"
-[unocss] failed to load icon "ep-fold-1"
-[unocss] failed to load icon "ep-fold-breadcrumb"
-[unocss] failed to load icon "ep-fold-hidden"
-[unocss] failed to load icon "ep-fullscreen-1"
-[unocss] failed to load icon "ep-fullscreen-content"
-[unocss] failed to load icon "ep-fullscreen-header-action"
-[unocss] failed to load icon "ep-fullscreen-click"
-[unocss] failed to load icon "ep-arrow-down-1"
-[unocss] failed to load icon "ep-fold-block"
-
 基于目前的系统架构（Vue 3 + TypeScript + Element Plus + Pinia + Mock），并参考业界成熟的后台管理系统（如 vue-element-admin, vben-admin 等），我为您整理了以下**功能补全建议**。
 
 您可以根据项目的实际需求和优先级，选择需要实现的功能：

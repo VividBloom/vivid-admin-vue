@@ -7,7 +7,12 @@
           <template #header>
             <div class="flex justify-between items-center">
               <span>{{ $t('dict.name') }}</span>
-              <el-button type="primary" size="small" @click="handleCreateType">
+              <el-button
+                v-track="{ module: 'Dictionary', action: 'Click Create Type Button' }"
+                type="primary"
+                size="small"
+                @click="handleCreateType"
+              >
                 <el-icon><Plus /></el-icon>
                 {{ $t('app.add') }}
               </el-button>
@@ -25,10 +30,28 @@
             <el-table-column prop="code" :label="$t('dict.code')" />
             <el-table-column :label="$t('dict.action')" width="100">
               <template #default="scope">
-                <el-button type="primary" link @click.stop="handleEditType(scope.row)">
+                <el-button
+                  v-track="{
+                    module: 'Dictionary',
+                    action: 'Click Edit Type Button',
+                    details: `Edit Dict Type: ${scope.row.code}`,
+                  }"
+                  type="primary"
+                  link
+                  @click.stop="handleEditType(scope.row)"
+                >
                   {{ $t('app.edit') || 'Edit' }}
                 </el-button>
-                <el-button type="danger" link @click.stop="handleDeleteType(scope.row)">
+                <el-button
+                  v-track="{
+                    module: 'Dictionary',
+                    action: 'Click Delete Type Button',
+                    details: `Delete Dict Type: ${scope.row.code}`,
+                  }"
+                  type="danger"
+                  link
+                  @click.stop="handleDeleteType(scope.row)"
+                >
                   {{ $t('app.delete') || 'Delete' }}
                 </el-button>
               </template>
@@ -46,6 +69,7 @@
                 currentType ? `${currentType.name} - ${$t('dict.itemList')}` : $t('dict.itemList')
               }}</span>
               <el-button
+                v-track="{ module: 'Dictionary', action: 'Click Create Item Button' }"
                 type="primary"
                 size="small"
                 :disabled="!currentType"
@@ -81,10 +105,28 @@
             </el-table-column>
             <el-table-column :label="$t('dict.action')" width="150">
               <template #default="scope">
-                <el-button type="primary" link @click="handleEditItem(scope.row)">
+                <el-button
+                  v-track="{
+                    module: 'Dictionary',
+                    action: 'Click Edit Item Button',
+                    details: `Edit Dict Item: ${scope.row.value}`,
+                  }"
+                  type="primary"
+                  link
+                  @click="handleEditItem(scope.row)"
+                >
                   {{ $t('app.edit') || 'Edit' }}
                 </el-button>
-                <el-button type="danger" link @click="handleDeleteItem(scope.row)">
+                <el-button
+                  v-track="{
+                    module: 'Dictionary',
+                    action: 'Click Delete Item Button',
+                    details: `Delete Dict Item: ${scope.row.value}`,
+                  }"
+                  type="danger"
+                  link
+                  @click="handleDeleteItem(scope.row)"
+                >
                   {{ $t('app.delete') || 'Delete' }}
                 </el-button>
               </template>

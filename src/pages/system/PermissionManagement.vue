@@ -9,7 +9,12 @@
     <!-- 页面头部：标题 + 新建按钮 -->
     <div class="page-header">
       <h2>{{ $t('permission.title') }}</h2>
-      <el-button v-permission="'system:permission'" type="primary" @click="openCreateDialog">
+      <el-button
+        v-permission="'system:permission'"
+        v-track="{ module: 'Permission', action: 'Click Create Button' }"
+        type="primary"
+        @click="openCreateDialog"
+      >
         <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('permission.new') }}
       </el-button>
@@ -114,6 +119,11 @@
               <template #default="scope">
                 <el-button
                   v-permission="'system:permission'"
+                  v-track="{
+                    module: 'Permission',
+                    action: 'Click Edit Button',
+                    details: `Edit Permission ID: ${scope.row.id}`,
+                  }"
                   size="small"
                   type="primary"
                   @click="editPermission(scope.row)"
@@ -122,6 +132,11 @@
                 </el-button>
                 <el-button
                   v-permission="'system:permission'"
+                  v-track="{
+                    module: 'Permission',
+                    action: 'Click Delete Button',
+                    details: `Delete Permission ID: ${scope.row.id}`,
+                  }"
                   size="small"
                   type="danger"
                   @click="deletePermission(scope.row)"

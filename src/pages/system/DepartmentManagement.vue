@@ -7,7 +7,12 @@
   <div class="department-management">
     <div class="page-header">
       <h2>{{ $t('department.title') }}</h2>
-      <el-button v-permission="'system:department'" type="primary" @click="handleCreate">
+      <el-button
+        v-permission="'system:department'"
+        v-track="{ module: 'Department', action: 'Click Create Button' }"
+        type="primary"
+        @click="handleCreate"
+      >
         <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('department.newDepartment') }}
       </el-button>
@@ -39,6 +44,11 @@
           <template #default="scope">
             <el-button
               v-permission="'system:department'"
+              v-track="{
+                module: 'Department',
+                action: 'Click Edit Button',
+                details: `Edit Department ID: ${scope.row.id}`,
+              }"
               size="small"
               type="primary"
               @click="editDepartment(scope.row)"
@@ -47,6 +57,11 @@
             </el-button>
             <el-button
               v-permission="'system:department'"
+              v-track="{
+                module: 'Department',
+                action: 'Click Delete Button',
+                details: `Delete Department ID: ${scope.row.id}`,
+              }"
               size="small"
               type="danger"
               @click="deleteDepartment(scope.row)"

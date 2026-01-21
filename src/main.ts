@@ -17,6 +17,7 @@ import 'virtual:uno.css'
 import './styles/main.scss'
 
 import { permissionDirective } from '@/directives/permission'
+import { track } from '@/directives/track'
 import i18n from './i18n'
 
 // 创建根应用实例
@@ -28,6 +29,7 @@ pinia.use(piniaPluginPersistedstate)
 
 // 注册权限指令
 app.directive('permission', permissionDirective)
+app.directive('track', track)
 
 // 挂载插件：状态管理、路由与 UI 组件库
 app.use(pinia)
