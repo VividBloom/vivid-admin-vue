@@ -12,7 +12,7 @@
       <div class="flex items-center gap-3">
         <el-button type="primary" @click="refreshData">
           <el-icon>
-            <Refresh />
+            <div class="i-ep-refresh" />
           </el-icon>
           {{ $t('dashboard.refreshData') }}
         </el-button>
@@ -40,7 +40,7 @@
             </div>
             <div class="opacity-80">
               <el-icon color="#409EFF" :size="48">
-                <User />
+                <div class="i-ep-user" />
               </el-icon>
             </div>
           </div>
@@ -61,7 +61,7 @@
             </div>
             <div class="opacity-80">
               <el-icon color="#67C23A" :size="48">
-                <ShoppingCart />
+                <div class="i-ep-shopping-cart" />
               </el-icon>
             </div>
           </div>
@@ -82,7 +82,7 @@
             </div>
             <div class="opacity-80">
               <el-icon color="#E6A23C" :size="48">
-                <Money />
+                <div class="i-ep-money" />
               </el-icon>
             </div>
           </div>
@@ -103,7 +103,7 @@
             </div>
             <div class="opacity-80">
               <el-icon color="#F56C6C" :size="48">
-                <TrendCharts />
+                <div class="i-ep-trend-charts" />
               </el-icon>
             </div>
           </div>
@@ -148,7 +148,7 @@
               }}</span>
               <el-button type="primary" link @click="loadRealTimeData">
                 <el-icon>
-                  <Refresh />
+                  <div class="i-ep-refresh" />
                 </el-icon>
               </el-button>
             </div>

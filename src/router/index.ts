@@ -9,6 +9,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user' // 使用 Pinia 管理用户认证信息
 import { useTagsViewsStore } from '@/stores/tagsView' // 管理标签页（TagsView）的状态
 import { useAppStore } from '@/stores/app' // 应用状态（例如页面重载）
+import { usePermissionStore } from '@/stores/permission'
 import i18n from '@/i18n'
 
 const routes: RouteRecordRaw[] = [
@@ -107,9 +108,10 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   const tagsViewStore = useTagsViewsStore()
+  const permissionStore = usePermissionStore()
   // 设置页面标题
   // 根据路由元信息动态设置页面 title，便于用户和浏览器历史记录识别
   const titleKey = to.meta.title || 'app.title'
@@ -130,7 +132,24 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !userStore.token) {
     next({ name: 'Login' })
   } else {
-    next()
+    // 检查是否已加载权限信息（防止刷新丢失）
+    if (userStore.token && permissionStore.userMenus.length === 0) {
+      try {
+        // 并发获取用户信息和权限
+        const promises = [permissionStore.initPermissions()]
+        if (!userStore.userInfo) {
+          promises.push(userStore.fetchUserInfo())
+        }
+        await Promise.all(promises)
+        next({ ...to, replace: true })
+      } catch (error) {
+        console.error('Failed to load permissions:', error)
+        userStore.logout()
+        next({ name: 'Login' })
+      }
+    } else {
+      next()
+    }
   }
 })
 

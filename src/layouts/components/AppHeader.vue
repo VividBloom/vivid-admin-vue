@@ -34,10 +34,10 @@
         >
           <el-button circle :class="{ 'dark-active': isDark }" @click="toggleTheme">
             <el-icon v-if="isDark" class="moon-icon">
-              <Moon />
+              <div class="i-ep-moon" />
             </el-icon>
             <el-icon v-else class="sun-icon">
-              <Sunny />
+              <div class="i-ep-sunny" />
             </el-icon>
           </el-button>
         </el-tooltip>
@@ -51,7 +51,7 @@
           @click="handleRefresh"
         >
           <el-icon>
-            <Refresh />
+            <div class="i-ep-refresh" />
           </el-icon>
         </div>
       </el-tooltip>
@@ -62,7 +62,7 @@
           :content="isFullscreen ? $t('app.exitFullScreen') : $t('app.fullScreen')"
         >
           <el-icon>
-            <component :is="isFullscreen ? 'CopyDocument' : 'FullScreen'"></component>
+            <div :class="isFullscreen ? 'i-ep-copy-document' : 'i-ep-fullscreen'" />
           </el-icon>
         </el-tooltip>
       </div>
@@ -70,7 +70,7 @@
       <!-- 消息通知 -->
       <el-dropdown class="header-action" trigger="click">
         <el-badge :value="unreadCount" :max="99">
-          <el-icon><Bell /></el-icon>
+          <el-icon><div class="i-ep-bell" /></el-icon>
         </el-badge>
         <template #dropdown>
           <el-dropdown-menu>

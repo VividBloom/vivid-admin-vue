@@ -11,7 +11,6 @@
     >
       <!-- 侧边栏 -->
       <app-sidebar
-        v-if="!permissionStore.permissionsLoading && permissionStore.userMenus.length > 0"
         :collapse="sidebarMode === 'vertical' ? isSidebarCollapsed : false"
         :mode="sidebarMode"
         @toggle-collapse="toggleSidebar"

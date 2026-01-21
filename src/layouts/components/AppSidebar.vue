@@ -5,8 +5,8 @@
 -->
 <template>
   <component
-    :is="mode === 'vertical' ? 'el-aside' : 'div'"
-    :width="mode === 'vertical' ? sidebarWidth : '100%'"
+    :is="mode === 'vertical' ? ElAside : 'div'"
+    :width="mode === 'vertical' ? sidebarWidth : undefined"
     class="sidebar-container"
     :class="{ 'sidebar-collapsed': collapse, 'is-horizontal': mode === 'horizontal' }"
   >
@@ -48,6 +48,7 @@
 // 侧边栏脚本说明：负责根据应用配置渲染菜单并暴露折叠切换事件
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElAside } from 'element-plus'
 import { useAppStore } from '@/stores/app'
 import { usePermissionStore } from '@/stores/permission'
 
