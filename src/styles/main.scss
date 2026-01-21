@@ -20,6 +20,27 @@
   min-height: calc(100vh - 64px);
 }
 
+// 响应式布局样式
+@media (max-width: 768px) {
+  .page-container {
+    padding: 10px;
+  }
+  .main-layout .layout-container {
+    flex-direction: column;
+  }
+  .sidebar-container {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .header-container {
+    flex-wrap: wrap;
+  }
+  .tags-view-container {
+    height: auto;
+    max-height: 120px;
+  }
+}
+
 // 工具类
 .text-center {
   text-align: center;

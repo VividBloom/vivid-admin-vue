@@ -106,9 +106,15 @@ watch(
 <style scoped>
 .main-container {
   padding: 20px;
-  /* background-color: #f5f7fa; */
+  /* background-color: #f8f9fa; */
   height: calc(100vh - 96px);
   overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .main-container {
+    padding: 10px;
+  }
 }
 
 /* 页面切换动画 */

@@ -6,14 +6,14 @@
 <template>
   <el-header class="header-container">
     <div class="header-left">
-      <!-- 侧边栏折叠按钮 -->
-      <div class="collapse-btn" @click="$emit('toggle-sidebar')">
+      <!-- 侧边栏折叠按钮 (仅在大屏显示) -->
+      <div v-if="!isSmallScreen" class="collapse-btn" @click="$emit('toggle-sidebar')">
         <el-icon size="20">
           <component :is="sidebarCollapsed ? 'Expand' : 'Fold'"></component>
         </el-icon>
       </div>
       <!-- 面包屑导航 -->
-      <el-breadcrumb class="breadcrumb" separator="/">
+      <el-breadcrumb class="breadcrumb hidden md:block" separator="/">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item v-for="item in breadcrumbList" :key="item.path">
           {{ item.meta?.title }}
@@ -73,7 +73,7 @@
       <el-dropdown trigger="click">
         <span class="user-info">
           <el-avatar :size="32" :src="userStore.userInfo?.avatar"></el-avatar>
-          <span class="user-name">{{ userStore.userName }}</span>
+          <span class="user-name md:block hidden">{{ userStore.userName }}</span>
           <el-icon><ArrowDown /></el-icon>
         </span>
         <template #dropdown>
@@ -92,6 +92,27 @@
       </el-dropdown>
     </div>
   </el-header>
+
+  <!-- 系统设置 Drawer -->
+  <el-drawer v-model="settingsDrawerVisible" title="系统设置" direction="rtl" size="400px">
+    <!-- 布局设置 -->
+    <div class="setting-item">
+      <h4>布局设置</h4>
+      <el-radio-group v-model="layoutSetting" @change="handleLayoutChange">
+        <el-radio label="expanded">展开侧边栏</el-radio>
+        <el-radio label="collapsed">折叠侧边栏</el-radio>
+      </el-radio-group>
+    </div>
+
+    <!-- 语言设置 -->
+    <div class="setting-item">
+      <h4>语言设置</h4>
+      <el-select v-model="languageSetting" @change="handleLanguageChange">
+        <el-option label="中文" value="zh-cn"></el-option>
+        <el-option label="English" value="en"></el-option>
+      </el-select>
+    </div>
+  </el-drawer>
 </template>
 
 <script setup lang="ts">
@@ -118,10 +139,18 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const tagsViewStore = useTagsViewsStore()
-const appStore = useAppStore()
 
 // 从 appStore 获取主题相关状态与切换方法
-const { isDark, toggleDark, themeName } = appStore
+const appStore = useAppStore()
+const { isDark, toggleDark, isSmallScreen } = appStore
+
+// 系统设置 Drawer 状态
+const settingsDrawerVisible = ref(false)
+
+// 设置选项状态
+const themeSetting = ref(isDark ? 'dark' : 'light')
+const layoutSetting = ref('expanded') // 默认展开
+const languageSetting = ref('zh-cn') // 默认中文
 
 // 全屏状态与未读消息数量等本地状态
 const isFullscreen = ref(false)
@@ -194,6 +223,44 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+// 打开系统设置 Drawer
+const openSettings = () => {
+  settingsDrawerVisible.value = true
+  // 同步当前设置值
+  themeSetting.value = isDark ? 'dark' : 'light'
+  // 假设布局设置基于侧边栏状态（这里简化，可扩展）
+  layoutSetting.value = 'expanded' // 或从 store 获取
+}
+
+// 处理主题变更
+const handleThemeChange = (value: string | number | boolean | undefined) => {
+  const val = value as string
+  if (val === 'dark') {
+    toggleDark()
+  } else if (isDark) toggleDark()
+}
+
+// 处理布局变更
+const handleLayoutChange = (value: string | number | boolean | undefined) => {
+  const val = value as string
+  // 这里可以调用 toggle-sidebar 事件或直接修改 store
+  // 简化实现：假设通过 emit 通知父组件
+  if (val === 'collapsed') {
+    // 折叠侧边栏
+    // emit('toggle-sidebar') // 如果需要
+  } else {
+    // 展开侧边栏
+  }
+  ElMessage.success(`布局已切换为${val === 'collapsed' ? '折叠' : '展开'}`)
+}
+
+// 处理语言变更
+const handleLanguageChange = (value: string) => {
+  // 这里可以设置 Element Plus 的 locale
+  // 例如：app.config.globalProperties.$ELEMENT.locale = value === 'zh-cn' ? zhCn : en
+  ElMessage.success(`语言已切换为${value === 'zh-cn' ? '中文' : 'English'}`)
+}
+
 onMounted(() => {
   // 添加键盘与窗口尺寸监听
   document.addEventListener('keydown', handleKeydown)
@@ -222,7 +289,6 @@ const toggleFullScreen = () => {
 
 // 页面跳转与用户菜单操作
 const toProfile = () => router.push('/system/profile')
-const openSettings = () => ElMessage.info('打开系统设置')
 
 const handleLogout = async () => {
   try {
@@ -362,6 +428,26 @@ const handleLogout = async () => {
     :deep(.el-switch__inner) {
       display: none;
     }
+  }
+}
+
+/* 系统设置样式 */
+.settings-content {
+  padding: 20px;
+}
+
+.setting-item {
+  margin-bottom: 30px;
+
+  h4 {
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .el-radio-group,
+  .el-select {
+    width: 100%;
   }
 }
 </style>

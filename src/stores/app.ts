@@ -3,7 +3,13 @@
  * - 管理页面刷新标志、缓存视图、窗口尺寸、主题（暗黑/亮色）等全局状态
  */
 import { defineStore } from 'pinia'
-import { useDark, useToggle } from '@vueuse/core'
+import {
+  useDark,
+  useToggle,
+  useBreakpoints,
+  breakpointsTailwind,
+  useWindowSize,
+} from '@vueuse/core'
 import { ref, computed } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
@@ -13,8 +19,30 @@ export const useAppStore = defineStore('app', () => {
   const cachedViews = ref<string[]>([])
   // 指定需要刷新的路由路径（reloadPage 会设置该字段）
   const needReloadPath = ref<string | null>('')
-  // 当前窗口尺寸（用于响应式布局）
-  const windowSize = ref<{ width: number; height: number }>({ width: 0, height: 0 })
+
+  // 使用 VueUse 的 useBreakpoints 管理响应式断点
+  const breakpoints = useBreakpoints(breakpointsTailwind)
+
+  // 恢复 windowSize 以保持兼容性
+  const { width, height } = useWindowSize()
+  const windowSize = computed(() => ({ width: width.value, height: height.value }))
+
+  // 当前断点 (保持原有逻辑)
+  const currentBreakpoint = computed(() => {
+    if (breakpoints.greaterOrEqual('xl').value) return 'xl'
+    if (breakpoints.greaterOrEqual('lg').value) return 'lg'
+    if (breakpoints.greaterOrEqual('md').value) return 'md'
+    if (breakpoints.greaterOrEqual('sm').value) return 'sm'
+    return 'xs'
+  })
+
+  // 是否为小屏幕（< md: 768px）
+  const isSmallScreen = breakpoints.smaller('md')
+  // 是否为中等屏幕（< lg: 1024px）
+  const isMediumScreen = breakpoints.smaller('lg')
+  // 是否为大屏幕（>= lg: 1024px）
+  const isLargeScreen = breakpoints.greaterOrEqual('lg')
+
   const initialized = ref(false)
   // 使用 useDark 创建响应式暗黑模式状态
   const isDark = useDark({
@@ -39,10 +67,6 @@ export const useAppStore = defineStore('app', () => {
 
   const initializeApp = async () => {
     initialized.value = true
-  }
-
-  const updateWindowSize = async (size: { width: number; height: number }) => {
-    windowSize.value = size
   }
 
   // 添加缓存视图
@@ -93,10 +117,13 @@ export const useAppStore = defineStore('app', () => {
 
     // getters
     themeName,
+    currentBreakpoint,
+    isSmallScreen,
+    isMediumScreen,
+    isLargeScreen,
 
     // action
     initializeApp,
-    updateWindowSize,
     addCachedView,
     deleteCachedView,
     setReloadFlag,

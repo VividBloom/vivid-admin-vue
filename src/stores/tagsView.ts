@@ -5,6 +5,7 @@
  */
 import { defineStore } from 'pinia'
 import type { RouteLocationNormalized } from 'vue-router'
+import { storage } from '@/utils/storage'
 
 export interface TagView {
   title: string
@@ -21,8 +22,8 @@ export interface TagView {
 
 export const useTagsViewsStore = defineStore('tagsView', {
   state: () => ({
-    visitedViews: [] as TagView[],
-    cachedViews: [] as string[],
+    visitedViews: (storage.get<TagView[]>('visitedViews') || []) as TagView[],
+    cachedViews: (storage.get<string[]>('cachedViews') || []) as string[],
     refreshFlags: {} as Record<string, number>, // 记录刷新时间戳
   }),
 
@@ -62,6 +63,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
         // 更新现有标签
         this.visitedViews[index] = { ...this.visitedViews[index], ...tagView }
         this.visitedViews[index].seq = oldSeq
+        storage.set('visitedViews', this.visitedViews)
+        storage.set('cachedViews', this.cachedViews)
         return
       }
       // 添加新标签
@@ -71,6 +74,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
       if (view.meta?.keepAlive && view.name) {
         this.addCachedView(view.name as string)
       }
+      storage.set('visitedViews', this.visitedViews)
+      storage.set('cachedViews', this.cachedViews)
     },
     // 删除标签，返回 Promise 以便在外部等待动画或路由切换
     delView(view: TagView) {
@@ -84,10 +89,23 @@ export const useTagsViewsStore = defineStore('tagsView', {
           if (view.name) {
             this.delCachedView(view.name)
           }
+          storage.set('visitedViews', this.visitedViews)
+          storage.set('cachedViews', this.cachedViews)
           resolve(true)
         }
         resolve(false)
       })
+    },
+
+    // 更新标签视图顺序
+    updateVisitedViews(views: TagView[]) {
+      this.visitedViews = views
+      // 更新序号
+      this.visitedViews.forEach((view, index) => {
+        view.seq = index + 1
+      })
+      storage.set('visitedViews', this.visitedViews)
+      storage.set('cachedViews', this.cachedViews)
     },
 
     // 删除除当前标签外的所有非 affix 标签
@@ -96,6 +114,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
 
       // 更新缓存
       this.cachedViews = this.visitedViews.filter(v => v.name).map(v => v.name as string)
+      storage.set('visitedViews', this.visitedViews)
+      storage.set('cachedViews', this.cachedViews)
     },
 
     // 删除左侧标签（保留 affix 和当前及其右侧）
@@ -104,6 +124,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
       if (index > 0) {
         this.visitedViews = this.visitedViews.filter((v, i) => v.affix || i >= index)
         this.updateCachedView()
+        storage.set('visitedViews', this.visitedViews)
+        storage.set('cachedViews', this.cachedViews)
       }
     },
 
@@ -113,6 +135,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
       if (index < this.visitedViews.length - 1) {
         this.visitedViews = this.visitedViews.filter((v, i) => v.affix || i <= index)
         this.updateCachedView()
+        storage.set('visitedViews', this.visitedViews)
+        storage.set('cachedViews', this.cachedViews)
       }
     },
 
@@ -120,6 +144,8 @@ export const useTagsViewsStore = defineStore('tagsView', {
     delAllViews() {
       this.visitedViews = this.visitedViews.filter(v => v.affix)
       this.cachedViews = []
+      storage.set('visitedViews', this.visitedViews)
+      storage.set('cachedViews', this.cachedViews)
     },
 
     // 添加缓存视图（组件名）
@@ -129,6 +155,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       }
       if (name) {
         this.cachedViews.push(name)
+        storage.set('cachedViews', this.cachedViews)
       }
     },
 
@@ -137,6 +164,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       const index = this.cachedViews.indexOf(name)
       if (index >= 0) {
         this.cachedViews.splice(index, 1)
+        storage.set('cachedViews', this.cachedViews)
       }
     },
 
@@ -145,6 +173,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
       this.cachedViews = this.visitedViews
         .filter(v => v.name && !v.affix)
         .map(v => v.name as string)
+      storage.set('cachedViews', this.cachedViews)
     },
 
     // ✅ 刷新视图相关方法

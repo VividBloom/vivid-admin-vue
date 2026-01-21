@@ -5,10 +5,17 @@
 -->
 <template>
   <div class="main-layout">
-    <el-container class="layout-container">
+    <el-container
+      class="layout-container"
+      :direction="sidebarMode === 'horizontal' ? 'vertical' : 'horizontal'"
+    >
       <!-- 侧边栏 -->
-      <app-sidebar :collapse="isSidebarCollapsed" @toggle-collapse="toggleSidebar" />
-      <!-- 右侧主区域 -->
+      <app-sidebar
+        v-if="!permissionStore.permissionsLoading && permissionStore.userMenus.length > 0"
+        :collapse="sidebarMode === 'vertical' ? isSidebarCollapsed : false"
+        :mode="sidebarMode"
+        @toggle-collapse="toggleSidebar"
+      />
       <el-container style="flex-direction: column" direction="vertical">
         <!-- 头部 -->
         <app-header :sidebar-collapsed="isSidebarCollapsed" @toggle-sidebar="toggleSidebar" />
@@ -23,15 +30,35 @@
 
 <script setup lang="ts">
 // 主布局逻辑：控制侧边栏折叠与提供全局刷新/状态给子组件
-import { ref, provide } from 'vue'
+import { ref, provide, computed, watch } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { usePermissionStore } from '@/stores/permission'
 
 import AppSidebar from './components/AppSidebar.vue'
 import AppHeader from './components/AppHeader.vue'
 import AppMain from './components/AppMain.vue'
 import TagsView from './components/TagsView.vue'
 
+const appStore = useAppStore()
+const permissionStore = usePermissionStore()
+
 // 侧边栏折叠状态（提供给子组件用于 UI 渲染）
 const isSidebarCollapsed = ref(false)
+
+// 侧边栏模式（大屏垂直，小屏水平）
+const sidebarMode = computed(() => (appStore.isSmallScreen ? 'horizontal' : 'vertical'))
+
+// 使用 store 中的响应式断点
+// 监听小屏幕变化，自动折叠侧边栏
+watch(
+  () => appStore.isSmallScreen,
+  newVal => {
+    if (newVal) {
+      isSidebarCollapsed.value = true
+    }
+  },
+  { immediate: true }
+)
 
 // 切换侧边栏折叠状态的回调，由头部或侧边栏触发
 const toggleSidebar = () => {

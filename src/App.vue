@@ -15,6 +15,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 
 // Element Plus 中文语言包
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -32,6 +33,7 @@ const buttonConfig = ref<ButtonConfig>({ autoInsertSpace: true }) // 按钮配�
 // ========== Store 初始化 ==========
 const appStore = useAppStore()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 // ========== 路由实例 ==========
 const route = useRoute()
@@ -91,6 +93,8 @@ const checkAuthStatus = async (): Promise<void> => {
     try {
       // 如果有 token，尝试获取用户信息
       await userStore.fetchUserInfo()
+      // 初始化用户权限数据
+      await permissionStore.initPermissions()
     } catch (error) {
       console.warn('⚠️ 自动登录失败，清除无效token')
       userStore.logout()
@@ -110,18 +114,7 @@ const setupRouteWatcher = (): void => {
  * 设置窗口变化监听器
  */
 const setupWindowListener = (): void => {
-  // 用于响应式布局调整
-  const handleResize = (): void => {
-    appStore.updateWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    })
-  }
-
-  window.addEventListener('resize', handleResize)
-
-  // 初始调用一次
-  handleResize()
+  // 窗口尺寸通过 useWindowSize 自动响应式更新，无需手动处理
 }
 </script>
 

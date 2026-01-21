@@ -39,6 +39,7 @@ export interface UserInfo {
   lastLoginTime?: string
   status: 'active' | 'inactive'
   permissions?: string[] // 可选：权限字符串列表（用于前端权限判断）
+  roles?: API.Role[] // 可选：用户角色列表
 }
 
 /**

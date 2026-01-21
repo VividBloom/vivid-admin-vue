@@ -5,11 +5,11 @@
   - 使用 echarts 渲染图表，提供 lifecycle 钩子进行初始化与销毁
 -->
 <template>
-  <div ref="scrollContainerRef" class="dashboard-container">
+  <div ref="scrollContainerRef" class="min-h-[calc(100vh-84px)] p-0">
     <!-- 页面标题和快捷操作 -->
-    <div :key="componentKey" class="dashboard-header">
-      <h1>仪表盘</h1>
-      <div class="header-actions">
+    <div :key="componentKey" class="mb-5 flex items-center justify-between">
+      <h1 class="m-0 text-2xl font-semibold">仪表盘</h1>
+      <div class="flex items-center gap-3">
         <el-button type="primary" @click="refreshData">
           <el-icon>
             <Refresh />
@@ -28,142 +28,164 @@
     </div>
 
     <!-- 关键指标卡片 -->
-    <div class="metrics-grid">
-      <el-card class="metric-card" shadow="hover">
-        <div class="metric-content">
-          <div class="metric-info">
-            <div class="metric-value">{{ dashboardData?.totalUsers }}</div>
-            <div class="metric-label">总用户数</div>
+    <el-row :gutter="16" class="mb-5">
+      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6" class="mb-4 lg:mb-0">
+        <el-card shadow="hover" :body-style="{ padding: '20px' }">
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <div class="mb-2 text-3xl font-semibold leading-none">
+                {{ dashboardData?.totalUsers }}
+              </div>
+              <div class="text-sm text-gray-400">总用户数</div>
+            </div>
+            <div class="opacity-80">
+              <el-icon color="#409EFF" :size="48">
+                <User />
+              </el-icon>
+            </div>
           </div>
-          <div class="metric-icon">
-            <el-icon color="#409EFF">
-              <User />
-            </el-icon>
+          <div class="text-xs">
+            <span class="text-green-500">↑ 12% 较上月</span>
           </div>
-        </div>
-        <div class="metric-trend">
-          <span class="trend-up">↑ 12% 较上月</span>
-        </div>
-      </el-card>
+        </el-card>
+      </el-col>
 
-      <el-card class="metric-card" shadow="hover">
-        <div class="metric-content">
-          <div class="metric-info">
-            <div class="metric-value">{{ dashboardData?.totalOrders }}</div>
-            <div class="metric-label">总订单数</div>
+      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6" class="mb-4 lg:mb-0">
+        <el-card shadow="hover" :body-style="{ padding: '20px' }">
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <div class="mb-2 text-3xl font-semibold leading-none">
+                {{ dashboardData?.totalOrders }}
+              </div>
+              <div class="text-sm text-gray-400">总订单数</div>
+            </div>
+            <div class="opacity-80">
+              <el-icon color="#67C23A" :size="48">
+                <ShoppingCart />
+              </el-icon>
+            </div>
           </div>
-          <div class="metric-icon">
-            <el-icon color="#67C23A">
-              <ShoppingCart />
-            </el-icon>
+          <div class="text-xs">
+            <span class="text-green-500">↑ 8% 较上月</span>
           </div>
-        </div>
-        <div class="metric-trend">
-          <span class="trend-up">↑ 8% 较上月</span>
-        </div>
-      </el-card>
+        </el-card>
+      </el-col>
 
-      <el-card class="metric-card" shadow="hover">
-        <div class="metric-content">
-          <div class="metric-info">
-            <div class="metric-value">¥{{ dashboardData?.totalRevenue }}</div>
-            <div class="metric-label">总收入</div>
+      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6" class="mb-4 sm:mb-0">
+        <el-card shadow="hover" :body-style="{ padding: '20px' }">
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <div class="mb-2 text-3xl font-semibold leading-none">
+                ¥{{ dashboardData?.totalRevenue }}
+              </div>
+              <div class="text-sm text-gray-400">总收入</div>
+            </div>
+            <div class="opacity-80">
+              <el-icon color="#E6A23C" :size="48">
+                <Money />
+              </el-icon>
+            </div>
           </div>
-          <div class="metric-icon">
-            <el-icon color="#E6A23C">
-              <Money />
-            </el-icon>
+          <div class="text-xs">
+            <span class="text-green-500">↑ 15% 较上月</span>
           </div>
-        </div>
-        <div class="metric-trend">
-          <span class="trend-up">↑ 15% 较上月</span>
-        </div>
-      </el-card>
+        </el-card>
+      </el-col>
 
-      <el-card class="metric-card" shadow="hover">
-        <div class="metric-content">
-          <div class="metric-info">
-            <div class="metric-value">{{ dashboardData?.avgConversion }}%</div>
-            <div class="metric-label">转化率</div>
+      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
+        <el-card shadow="hover" :body-style="{ padding: '20px' }">
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <div class="mb-2 text-3xl font-semibold leading-none">
+                {{ dashboardData?.avgConversion }}%
+              </div>
+              <div class="text-sm text-gray-400">转化率</div>
+            </div>
+            <div class="opacity-80">
+              <el-icon color="#F56C6C" :size="48">
+                <TrendCharts />
+              </el-icon>
+            </div>
           </div>
-          <div class="metric-icon">
-            <el-icon color="#F56C6C">
-              <TrendCharts />
-            </el-icon>
+          <div class="text-xs">
+            <span class="text-red-400">↓ 2% 较上月</span>
           </div>
-        </div>
-        <div class="metric-trend">
-          <span class="trend-down">↓ 2% 较上月</span>
-        </div>
-      </el-card>
-    </div>
+        </el-card>
+      </el-col>
+    </el-row>
 
     <!-- 图表区域 -->
-    <div class="charts-grid">
-      <!-- 访问量折线图 -->
-      <el-card class="chart-card" shadow="never">
-        <template #header>
-          <div class="chart-header">
-            <span>访问量趋势</span>
-            <el-radio-group v-model="visitChartType" size="small">
-              <el-radio-button label="week" value="week">本周</el-radio-button>
-              <el-radio-button label="month" value="month">本月</el-radio-button>
-              <el-radio-button label="quarter" value="quarter">本季</el-radio-button>
-            </el-radio-group>
-          </div>
-        </template>
-        <div ref="visitChart" class="chart-container"></div>
-      </el-card>
+    <el-row :gutter="16">
+      <!-- 左侧列 -->
+      <el-col :xs="24" :lg="12">
+        <!-- 访问量折线图 -->
+        <el-card class="mb-4" shadow="never">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="text-base font-semibold">访问量趋势</span>
+              <el-radio-group v-model="visitChartType" size="small">
+                <el-radio-button label="week" value="week">本周</el-radio-button>
+                <el-radio-button label="month" value="month">本月</el-radio-button>
+                <el-radio-button label="quarter" value="quarter">本季</el-radio-button>
+              </el-radio-group>
+            </div>
+          </template>
+          <div ref="visitChart" class="h-[300px] w-full"></div>
+        </el-card>
 
-      <!-- 用户分布环图 -->
-      <el-card class="chart-card" shadow="never">
-        <template #header>
-          <div class="chart-header">
-            <span>用户分布</span>
-          </div>
-        </template>
-        <div ref="userChart" class="chart-container"></div>
-      </el-card>
+        <!-- 实时交易表格 -->
+        <el-card class="mb-4 lg:mb-0" shadow="never">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="text-base font-semibold">实时交易</span>
+              <el-button type="primary" link @click="loadRealTimeData">
+                <el-icon>
+                  <Refresh />
+                </el-icon>
+              </el-button>
+            </div>
+          </template>
+          <el-table v-loading="tableLoading" :data="realtimeTransactions" height="300">
+            <el-table-column prop="id" label="订单号" width="120" />
+            <el-table-column prop="user" label="用户" width="100" />
+            <el-table-column prop="amount" label="金额" width="100">
+              <template #default="scope"> ¥{{ scope.row.amount }} </template>
+            </el-table-column>
+            <el-table-column prop="status" label="状态" width="100">
+              <template #default="scope">
+                <el-tag :type="getStatusType(scope.row.status)">
+                  {{ scope.row.status }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="time" label="时间" />
+          </el-table>
+        </el-card>
+      </el-col>
 
-      <!-- 实时交易表格 -->
-      <el-card class="chart-card" shadow="never">
-        <template #header>
-          <div class="chart-header">
-            <span>实时交易</span>
-            <el-button type="primary" link @click="loadRealTimeData">
-              <el-icon>
-                <Refresh />
-              </el-icon>
-            </el-button>
-          </div>
-        </template>
-        <el-table v-loading="tableLoading" :data="realtimeTransactions" height="300">
-          <el-table-column prop="id" label="订单号" width="120" />
-          <el-table-column prop="user" label="用户" width="100" />
-          <el-table-column prop="amount" label="金额" width="100">
-            <template #default="scope"> ¥{{ scope.row.amount }} </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="100">
-            <template #default="scope">
-              <el-tag :type="getStatusType(scope.row.status)">
-                {{ scope.row.status }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="time" label="时间" />
-        </el-table>
-      </el-card>
+      <!-- 右侧列 -->
+      <el-col :xs="24" :lg="12">
+        <!-- 用户分布环图 -->
+        <el-card class="mb-4" shadow="never">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="text-base font-semibold">用户分布</span>
+            </div>
+          </template>
+          <div ref="userChart" class="h-[300px] w-full"></div>
+        </el-card>
 
-      <!-- 性能指标仪表盘 -->
-      <el-card class="chart-card" shadow="never">
-        <template #header>
-          <div class="chart-header">
-            <span>系统性能</span>
-          </div>
-        </template>
-        <div ref="gaugeChart" class="chart-container"></div>
-      </el-card>
-    </div>
+        <!-- 性能指标仪表盘 -->
+        <el-card shadow="never">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <span class="text-base font-semibold">系统性能</span>
+            </div>
+          </template>
+          <div ref="gaugeChart" class="h-[300px] w-full"></div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -374,7 +396,7 @@ const initCharts = () => {
     userChartInstance.setOption(option)
   }
 
-  // 性能指标仪表盘[7](@ref)
+  // 性能指标仪表盘
   if (gaugeChart.value) {
     gaugeChartInstance = echarts.init(gaugeChart.value)
     const option = {
@@ -467,128 +489,3 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 </script>
-
-<style scoped lang="scss">
-.dashboard-container {
-  padding: 0;
-  // background: #f5f5f5;
-  min-height: calc(100vh - 84px);
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-
-  h1 {
-    margin: 0;
-    // color: #303133;
-    font-size: 24px;
-    font-weight: 600;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.metric-card {
-  :deep(.el-card__body) {
-    padding: 20px;
-  }
-}
-
-.metric-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.metric-info {
-  .metric-value {
-    font-size: 32px;
-    font-weight: 600;
-    // color: #303133;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .metric-label {
-    font-size: 14px;
-    color: #909399;
-  }
-}
-
-.metric-icon {
-  font-size: 48px;
-  opacity: 0.8;
-}
-
-.metric-trend {
-  font-size: 12px;
-
-  .trend-up {
-    color: #67c23a;
-  }
-
-  .trend-down {
-    color: #f56c6c;
-  }
-}
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.chart-card {
-  :deep(.el-card__header) {
-    padding: 16px 20px 0;
-    border-bottom: none;
-  }
-
-  :deep(.el-card__body) {
-    padding: 0 20px 20px;
-  }
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px 20px;
-}
-
-hart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  span {
-    font-size: 16px;
-    font-weight: 600;
-    // color: #303133;
-  }
-}
-
-.chart-container {
-  height: 300px;
-  width: 100%;
-}
-</style>

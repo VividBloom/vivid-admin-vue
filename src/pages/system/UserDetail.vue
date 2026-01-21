@@ -61,12 +61,6 @@ const loadUserDetail = async () => {
       email: `user${userId}@example.com`,
       role: '普通用户',
       createTime: '2025-01-01',
-
-      id: userId,
-      username: `用户${userId}`,
-      email: `user${userId}@example.com`,
-      role: '普通用户',
-      createTime: '2025-01-01',
     }
   }, 300)
 }

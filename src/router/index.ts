@@ -60,6 +60,18 @@ const routes: RouteRecordRaw[] = [
             props: true, // 可以将路由参数 :id 作为 props 传递给组件[3,5](@ref)
           },
           {
+            path: 'role',
+            name: 'RoleManagement',
+            component: () => import('@/pages/system/RoleManagement.vue'),
+            meta: { title: '角色管理', keepAlive: true },
+          },
+          {
+            path: 'permission',
+            name: 'PermissionManagement',
+            component: () => import('@/pages/system/PermissionManagement.vue'),
+            meta: { title: '权限管理', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),

@@ -5,6 +5,7 @@
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
@@ -16,17 +17,25 @@ import 'virtual:uno.css'
 import './styles/main.scss'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { permissionDirective } from '@/directives/permission'
 
 // 创建根应用实例
 const app = createApp(App)
+
+// 创建Pinia实例并配置持久化插件
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 // 全局注册 Element Plus 的所有图标组件，方便模板中直接使用
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
+// 注册权限指令
+app.directive('permission', permissionDirective)
+
 // 挂载插件：状态管理、路由与 UI 组件库
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
 
