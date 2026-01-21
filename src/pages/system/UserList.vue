@@ -63,6 +63,11 @@
           </template>
         </el-table-column>
       </el-table>
+      <CommonPagination
+        :pagination="pagination"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </el-card>
 
     <!-- 新建/编辑用户对话框 -->
@@ -125,6 +130,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { roleApi, permissionApi, userApi } from '@/api'
 import { useI18n } from 'vue-i18n'
+import { useCurd } from '@/composables/useCurd'
+import CommonPagination from '@/components/CommonPagination.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -135,11 +142,73 @@ const treeProps = {
   children: 'children',
 }
 
-// 响应式数据
-const loading = ref(false)
-const submitLoading = ref(false)
-const showCreateDialog = ref(false)
-const isEdit = ref(false)
+// 组合式函数
+const {
+  // 表格状态
+  loading,
+  data: userList,
+  pagination,
+  refresh: loadUserList,
+  handleSizeChange,
+  handleCurrentChange,
+  // 弹窗状态
+  visible: showCreateDialog,
+  isEdit,
+  submitLoading,
+  openCreate,
+  openEdit,
+  closeDialog,
+  // CRUD 操作
+  handleDelete: handleDeleteRaw,
+  submitForm: submitFormRaw,
+} = useCurd({
+  fetchDataApi: async (params: any) => {
+    try {
+      return await userApi.getUserList(params)
+    } catch (error: any) {
+      // 模拟数据 (fallback if API fails)
+      return {
+        code: 200,
+        data: [
+          {
+            id: 1,
+            username: 'admin',
+            email: 'admin@example.com',
+            phone: '13800138000',
+            roles: [
+              {
+                id: 1,
+                name: 'Admin',
+                code: 'admin',
+                status: 'active',
+                permissions: [],
+                createTime: '',
+                updateTime: '',
+              },
+              {
+                id: 1,
+                name: 'Admin',
+                code: 'admin',
+                status: 'active',
+                permissions: [],
+                createTime: '',
+                updateTime: '',
+              },
+            ],
+            permissions: [],
+            status: 'active',
+            createTime: '2025-01-01 10:00:00',
+          },
+        ],
+      }
+    }
+  },
+  createApi: userApi.createUser,
+  updateApi: userApi.updateUser,
+  deleteApi: userApi.deleteUser,
+  immediate: false,
+})
+
 const currentUser = ref<any>(null)
 
 // 角色和权限数据
@@ -164,61 +233,10 @@ const userFormRules = computed(() => ({
   roleIds: [{ required: true, message: t('userList.selectRole'), trigger: 'change' }],
 }))
 
-// 表格数据
-const userList = ref<any[]>([])
-
 // 表单引用
 const userFormRef = ref()
 
 defineOptions({ name: 'UserList' })
-
-// 获取用户列表
-const loadUserList = async () => {
-  loading.value = true
-  try {
-    const response = await userApi.getUserList()
-    if (response.code === 200) {
-      userList.value = response.data
-    }
-  } catch (error: any) {
-    // ElMessage.error(error.message || '获取用户列表失败')
-    // 模拟数据 (fallback if API fails)
-    userList.value = [
-      {
-        id: 1,
-        username: 'admin',
-        email: 'admin@example.com',
-        phone: '13800138000',
-        roles: [
-          {
-            id: 1,
-            name: 'Admin',
-            code: 'admin',
-            status: 'active',
-            permissions: [],
-            createTime: '',
-            updateTime: '',
-          },
-
-          {
-            id: 1,
-            name: 'Admin',
-            code: 'admin',
-            status: 'active',
-            permissions: [],
-            createTime: '',
-            updateTime: '',
-          },
-        ],
-        permissions: [],
-        status: 'active',
-        createTime: '2025-01-01 10:00:00',
-      },
-    ]
-  } finally {
-    loading.value = false
-  }
-}
 
 // 获取角色列表
 const fetchRoles = async () => {
@@ -303,7 +321,7 @@ const fetchPermissionTree = async () => {
 }
 
 // 处理权限勾选
-const handlePermissionCheck = (data: any, checkedInfo: any) => {
+const handlePermissionCheck = (_: any, checkedInfo: any) => {
   userForm.permissionIds = checkedInfo.checkedKeys
 }
 
@@ -314,7 +332,7 @@ const viewDetail = (userId: number) => {
 
 // 新建用户
 const handleCreate = () => {
-  isEdit.value = false
+  openCreate()
   currentUser.value = null
   Object.assign(userForm, {
     username: '',
@@ -324,7 +342,7 @@ const handleCreate = () => {
     permissionIds: [],
     status: 'active',
   })
-  showCreateDialog.value = true
+  // showCreateDialog.value = true // Handled by openCreate
   nextTick(() => {
     if (permissionTreeRef.value) {
       permissionTreeRef.value.setCheckedKeys([])
@@ -337,7 +355,7 @@ const handleCreate = () => {
 
 // 编辑用户
 const editUser = (user: any) => {
-  isEdit.value = true
+  openEdit()
   currentUser.value = user
   Object.assign(userForm, {
     username: user.username,
@@ -347,7 +365,7 @@ const editUser = (user: any) => {
     permissionIds: user.permissions ? user.permissions.map((p: any) => p.id) : [],
     status: user.status,
   })
-  showCreateDialog.value = true
+  // showCreateDialog.value = true // Handled by openEdit
   // 设置权限树选中状态
   nextTick(() => {
     if (permissionTreeRef.value) {
@@ -358,58 +376,17 @@ const editUser = (user: any) => {
 
 // 删除用户
 const deleteUser = async (user: any) => {
-  try {
-    await ElMessageBox.confirm(
-      t('userList.confirmDelete', { username: user.username }),
-      t('app.confirm'),
-      {
-        confirmButtonText: t('app.ok'),
-        cancelButtonText: t('app.cancel'),
-        type: 'warning',
-      }
-    )
-
-    // 这里应该调用删除API
-    await userApi.deleteUser(user.id)
-    ElMessage.success(t('userList.deleteSuccess'))
-    await loadUserList()
-  } catch {
-    // 用户取消删除
-  }
+  await handleDeleteRaw(user, t('userList.confirmDelete', { username: user.username }))
 }
 
 // 提交用户表单
 const submitUserForm = async () => {
-  if (!userFormRef.value) return
-
-  await userFormRef.value.validate(async (valid: boolean) => {
-    if (!valid) return
-
-    submitLoading.value = true
-    try {
-      const submitData = {
-        ...userForm,
-        // 如果是编辑，可能还需要传ID
-        id: isEdit.value ? currentUser.value?.id : undefined,
-      }
-
-      if (isEdit.value && currentUser.value) {
-        // 编辑用户
-        await userApi.updateUser(submitData)
-        ElMessage.success(t('userList.updateSuccess'))
-      } else {
-        // 新建用户
-        await userApi.createUser(submitData)
-        ElMessage.success(t('userList.createSuccess'))
-      }
-      showCreateDialog.value = false
-      await loadUserList()
-    } catch (error: any) {
-      ElMessage.error(error.message || t('userList.operationFailed'))
-    } finally {
-      submitLoading.value = false
-    }
-  })
+  const submitData = {
+    ...userForm,
+    id: isEdit.value ? currentUser.value?.id : undefined,
+  }
+  const successMsg = isEdit.value ? t('userList.updateSuccess') : t('userList.createSuccess')
+  await submitFormRaw(userFormRef.value, submitData, successMsg)
 }
 
 // 生命周期
@@ -423,6 +400,12 @@ onMounted(() => {
 <style scoped>
 .user-management {
   padding: 20px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .page-header {

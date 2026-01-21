@@ -199,6 +199,8 @@ import { usePermissionStore } from '@/stores/permission'
 import { permissionApi } from '@/api'
 import { useI18n } from 'vue-i18n'
 
+import { useDialog } from '@/composables/useDialog'
+
 const { t } = useI18n()
 const permissionStore = usePermissionStore()
 
@@ -211,11 +213,16 @@ const treeProps = {
 // 加载状态
 const treeLoading = ref(false)
 const listLoading = ref(false)
-const submitLoading = ref(false)
 
 // 对话框状态
-const showDialog = ref(false)
-const isEdit = ref(false)
+const {
+  visible: showDialog,
+  isEdit,
+  submitLoading,
+  openCreate,
+  openEdit,
+  closeDialog,
+} = useDialog()
 
 // 过滤条件
 const filter = reactive({
@@ -299,7 +306,7 @@ const reloadPermissions = async () => {
 
 // 打开新建窗口
 const openCreateDialog = () => {
-  isEdit.value = false
+  openCreate()
   Object.assign(form, {
     id: undefined,
     name: '',
@@ -311,12 +318,12 @@ const openCreateDialog = () => {
     sort: 0,
     status: 'active',
   })
-  showDialog.value = true
+  // showDialog.value = true // Handled by openCreate
 }
 
 // 编辑权限
 const editPermission = (p: API.Permission) => {
-  isEdit.value = true
+  openEdit()
   Object.assign(form, {
     id: p.id,
     name: p.name,
@@ -328,7 +335,7 @@ const editPermission = (p: API.Permission) => {
     sort: p.sort ?? 0,
     status: p.status,
   })
-  showDialog.value = true
+  // showDialog.value = true // Handled by openEdit
 }
 
 // 删除权限
@@ -383,7 +390,7 @@ const submitForm = async () => {
         } as any)
         ElMessage.success(t('userList.createSuccess'))
       }
-      showDialog.value = false
+      closeDialog()
       await reloadPermissions()
     } catch (error: any) {
       ElMessage.error(error.message || t('userList.operationFailed'))

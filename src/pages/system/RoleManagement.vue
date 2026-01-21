@@ -56,6 +56,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="pagination.currentPage"
+          v-model:page-size="pagination.pageSize"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-card>
 
     <!-- 新建/编辑角色对话框 -->
@@ -121,6 +132,9 @@ import { usePermissionStore } from '@/stores/permission'
 import { roleApi } from '@/api'
 import { useI18n } from 'vue-i18n'
 
+import { useCurd } from '@/composables/useCurd'
+import CommonPagination from '@/components/CommonPagination.vue'
+
 const { t } = useI18n()
 const permissionStore = usePermissionStore()
 
@@ -130,12 +144,31 @@ const treeProps = {
   children: 'children',
 }
 
-// 响应式数据
-const loading = ref(false)
-const submitLoading = ref(false)
-const showCreateDialog = ref(false)
+// 组合式函数
+const {
+  // 表格状态
+  loading,
+  data: roles,
+  pagination,
+  refresh: fetchRoles,
+  handleSizeChange,
+  handleCurrentChange,
+  // 弹窗状态
+  visible: showCreateDialog,
+  isEdit,
+  submitLoading,
+  openCreate,
+  openEdit,
+  closeDialog,
+  // CRUD 操作
+  handleDelete: handleDeleteRaw,
+} = useCurd({
+  fetchDataApi: roleApi.getRoles,
+  deleteApi: roleApi.deleteRole,
+  itemName: t('role.title'),
+})
+
 const showPermissionDialog = ref(false)
-const isEdit = ref(false)
 const currentRole = ref<API.Role | null>(null)
 const selectedPermissionIds = ref<number[]>([])
 
@@ -153,33 +186,14 @@ const roleFormRules = computed(() => ({
   code: [{ required: true, message: t('role.code'), trigger: 'blur' }],
 }))
 
-// 表格数据
-const roles = ref<API.Role[]>([])
-
-// 权限树相关
 const permissionTree = ref<API.PermissionTreeNode[]>([])
 const permissionTreeRef = ref()
 const roleFormRef = ref()
 
-// 获取角色列表
-const fetchRoles = async () => {
-  loading.value = true
-  try {
-    const response = await roleApi.getRoles()
-    if (response.code === 200) {
-      roles.value = response.data
-    }
-  } catch (error: any) {
-    ElMessage.error(error.message || t('userList.operationFailed'))
-  } finally {
-    loading.value = false
-  }
-}
-
 // 获取权限树
 const fetchPermissionTree = async () => {
   try {
-    const response = await permissionStore.fetchPermissionTree()
+    await permissionStore.fetchPermissionTree()
     permissionTree.value = permissionStore.permissionTree
   } catch (error: any) {
     ElMessage.error(error.message || t('userList.operationFailed'))
@@ -188,7 +202,7 @@ const fetchPermissionTree = async () => {
 
 // 新建角色
 const createRole = () => {
-  isEdit.value = false
+  openCreate()
   currentRole.value = null
   Object.assign(roleForm, {
     name: '',
@@ -196,12 +210,11 @@ const createRole = () => {
     description: '',
     status: 'active' as 'active' | 'inactive',
   })
-  showCreateDialog.value = true
 }
 
 // 编辑角色
 const editRole = (role: API.Role) => {
-  isEdit.value = true
+  openEdit()
   currentRole.value = role
   Object.assign(roleForm, {
     name: role.name,
@@ -209,23 +222,11 @@ const editRole = (role: API.Role) => {
     description: role.description || '',
     status: role.status,
   })
-  showCreateDialog.value = true
 }
 
 // 删除角色
 const deleteRole = async (role: API.Role) => {
-  try {
-    await ElMessageBox.confirm(t('role.confirmDelete', { name: role.name }), t('app.confirm'), {
-      confirmButtonText: t('app.ok'),
-      cancelButtonText: t('app.cancel'),
-      type: 'warning',
-    })
-    await roleApi.deleteRole(role.id)
-    ElMessage.success(t('role.deleteSuccess'))
-    await fetchRoles()
-  } catch {
-    // User cancelled
-  }
+  await handleDeleteRaw(role, t('role.confirmDelete', { name: role.name }))
 }
 
 // 分配权限
@@ -253,7 +254,7 @@ const submitRoleForm = async () => {
         // 这里应该调用创建API
         ElMessage.success(t('role.createSuccess'))
       }
-      showCreateDialog.value = false
+      closeDialog()
       await fetchRoles()
     } catch (error: any) {
       ElMessage.error(error.message || t('role.operationFailed'))
@@ -296,6 +297,12 @@ onMounted(() => {
 <style scoped>
 .role-management {
   padding: 20px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .page-header {
