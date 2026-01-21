@@ -8,6 +8,7 @@ import { permissionMocks } from './permission'
 import { roleMocks } from './role'
 import { logMocks } from './log'
 import { dictMocks } from './dictionary'
+import departmentMocks from './department'
 
 // 将所有 Mock 接口规则合并到一个数组中并导出
 export default [
@@ -20,4 +21,5 @@ export default [
   ...userRoleMocks,
   ...logMocks,
   ...dictMocks,
+  ...departmentMocks,
 ] as MockMethod[]

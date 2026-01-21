@@ -36,62 +36,86 @@
       </div>
     </div>
 
-    <el-card class="content-card" shadow="never">
-      <el-table v-loading="loading" :data="userList" style="width: 100%">
-        <el-table-column prop="id" :label="$t('userList.id')" width="80" />
-        <el-table-column prop="username" :label="$t('userList.username')" width="120" />
-        <el-table-column prop="email" :label="$t('userList.email')" min-width="200" />
-        <el-table-column prop="phone" :label="$t('userList.phone')" width="130" />
-        <el-table-column prop="role" :label="$t('userList.role')" width="150">
-          <template #default="scope">
-            <el-tag v-for="role in scope.row.roles" :key="role.id" size="small" class="mr-1">
-              {{ role.name }}
-            </el-tag>
+    <el-row :gutter="20">
+      <!-- 左侧部门树 -->
+      <el-col :span="6">
+        <el-card class="box-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span>{{ $t('department.title') }}</span>
+            </div>
           </template>
-        </el-table-column>
-        <el-table-column prop="status" :label="$t('userList.status')" width="100">
-          <template #default="scope">
-            <el-tag :type="getStatusTagType(scope.row.status)">
-              {{ getStatusLabel(scope.row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" :label="$t('userList.createTime')" width="180" />
-        <el-table-column :label="$t('userList.action')" width="200" fixed="right">
-          <template #default="scope">
-            <el-button
-              v-permission="'system:user'"
-              size="small"
-              type="primary"
-              @click="editUser(scope.row)"
-            >
-              {{ $t('userList.editUser') }}
-            </el-button>
-            <el-button
-              v-permission="'system:user'"
-              size="small"
-              type="success"
-              @click="viewDetail(scope.row.id)"
-            >
-              {{ $t('userList.detail') }}
-            </el-button>
-            <el-button
-              v-permission="'system:user'"
-              size="small"
-              type="danger"
-              @click="deleteUser(scope.row)"
-            >
-              {{ $t('userList.delete') }}
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <CommonPagination
-        :pagination="pagination"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </el-card>
+          <el-tree
+            :data="departmentList"
+            :props="defaultProps"
+            node-key="id"
+            default-expand-all
+            highlight-current
+            @node-click="handleNodeClick"
+          />
+        </el-card>
+      </el-col>
+
+      <!-- 右侧用户列表 -->
+      <el-col :span="18">
+        <el-card class="content-card" shadow="never">
+          <el-table v-loading="loading" :data="userList" style="width: 100%">
+            <el-table-column prop="id" :label="$t('userList.id')" width="80" />
+            <el-table-column prop="username" :label="$t('userList.username')" width="120" />
+            <el-table-column prop="email" :label="$t('userList.email')" min-width="200" />
+            <el-table-column prop="phone" :label="$t('userList.phone')" width="130" />
+            <el-table-column prop="role" :label="$t('userList.role')" width="150">
+              <template #default="scope">
+                <el-tag v-for="role in scope.row.roles" :key="role.id" size="small" class="mr-1">
+                  {{ role.name }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="status" :label="$t('userList.status')" width="100">
+              <template #default="scope">
+                <el-tag :type="getStatusTagType(scope.row.status)">
+                  {{ getStatusLabel(scope.row.status) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createTime" :label="$t('userList.createTime')" width="180" />
+            <el-table-column :label="$t('userList.action')" width="200" fixed="right">
+              <template #default="scope">
+                <el-button
+                  v-permission="'system:user'"
+                  size="small"
+                  type="primary"
+                  @click="editUser(scope.row)"
+                >
+                  {{ $t('userList.editUser') }}
+                </el-button>
+                <el-button
+                  v-permission="'system:user'"
+                  size="small"
+                  type="success"
+                  @click="viewDetail(scope.row.id)"
+                >
+                  {{ $t('userList.detail') }}
+                </el-button>
+                <el-button
+                  v-permission="'system:user'"
+                  size="small"
+                  type="danger"
+                  @click="deleteUser(scope.row)"
+                >
+                  {{ $t('userList.delete') }}
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <CommonPagination
+            :pagination="pagination"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </el-card>
+      </el-col>
+    </el-row>
 
     <!-- 新建/编辑用户对话框 -->
     <el-dialog
@@ -108,6 +132,16 @@
         </el-form-item>
         <el-form-item :label="$t('userList.phone')" prop="phone">
           <el-input v-model="userForm.phone" :placeholder="$t('profile.enterPhone')" />
+        </el-form-item>
+        <el-form-item :label="$t('userList.department')" prop="deptId">
+          <el-tree-select
+            v-model="userForm.deptId"
+            :data="departmentList"
+            :props="defaultProps"
+            check-strictly
+            :render-after-expand="false"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item :label="$t('userList.role')" prop="roleIds">
           <el-select v-model="userForm.roleIds" multiple :placeholder="$t('userList.selectRole')">
@@ -154,6 +188,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { exportExcel, readExcel } from '@/utils/excel'
 import { roleApi, permissionApi, userApi } from '@/api'
+import { getDepartmentList } from '@/api/department'
 import { useI18n } from 'vue-i18n'
 import { useCurd } from '@/composables/useCurd'
 import CommonPagination from '@/components/CommonPagination.vue'
@@ -162,6 +197,32 @@ import { useDictStore } from '@/stores/dictionary'
 const { t } = useI18n()
 const router = useRouter()
 const dictStore = useDictStore()
+
+// 部门数据
+const departmentList = ref<any[]>([])
+const selectedDeptId = ref<number | null>(null)
+const defaultProps = {
+  children: 'children',
+  label: 'name',
+}
+
+// 获取部门列表
+const fetchDepartments = async () => {
+  try {
+    const res = await getDepartmentList()
+    if (res.code === 200) {
+      departmentList.value = res.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch departments:', error)
+  }
+}
+
+// 点击部门节点
+const handleNodeClick = (data: any) => {
+  selectedDeptId.value = data.id
+  loadUserList()
+}
 
 // 字典数据
 const userStatusOptions = computed(() => dictStore.dictCache.userStatus || [])
@@ -207,7 +268,12 @@ const {
 } = useCurd({
   fetchDataApi: async (params: any) => {
     try {
-      return await userApi.getUserList(params)
+      // 合并部门筛选参数
+      const queryParams = {
+        ...params,
+        deptId: selectedDeptId.value,
+      }
+      return await userApi.getUserList(queryParams)
     } catch (error: any) {
       // 模拟数据 (fallback if API fails)
       return {
@@ -301,6 +367,7 @@ const userForm = reactive({
   username: '',
   email: '',
   phone: '',
+  deptId: null as number | null,
   roleIds: [] as number[],
   permissionIds: [] as number[],
   status: 'active' as 'active' | 'inactive',
@@ -418,6 +485,7 @@ const handleCreate = () => {
     username: '',
     email: '',
     phone: '',
+    deptId: null,
     roleIds: [],
     permissionIds: [],
     status: 'active',
@@ -441,6 +509,7 @@ const editUser = (user: any) => {
     username: user.username,
     email: user.email,
     phone: user.phone || '',
+    deptId: user.deptId || null,
     roleIds: user.roles ? user.roles.map((r: any) => r.id) : [],
     permissionIds: user.permissions ? user.permissions.map((p: any) => p.id) : [],
     status: user.status,
@@ -472,6 +541,7 @@ const submitUserForm = async () => {
 // 生命周期
 onMounted(() => {
   dictStore.getDict('userStatus')
+  fetchDepartments()
   loadUserList()
   fetchRoles()
   fetchPermissionTree()
@@ -502,6 +572,10 @@ onMounted(() => {
 }
 
 .content-card {
-  margin-top: 20px;
+  margin-top: 0; /* Adjusted to fit in layout */
+}
+
+.box-card {
+  height: 100%;
 }
 </style>

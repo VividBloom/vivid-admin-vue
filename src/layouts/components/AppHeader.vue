@@ -62,7 +62,7 @@
           :content="isFullscreen ? $t('app.exitFullScreen') : $t('app.fullScreen')"
         >
           <el-icon>
-            <div :class="isFullscreen ? 'i-ep-copy-document' : 'i-ep-fullscreen'" />
+            <div :class="isFullscreen ? 'i-ep-copy-document' : 'i-ep-full-screen'" />
           </el-icon>
         </el-tooltip>
       </div>

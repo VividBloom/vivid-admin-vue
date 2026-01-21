@@ -11,6 +11,7 @@ export const userList = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
     createTime: '2025-01-01 10:00:00',
     status: 'active',
+    deptId: 1, // HQ
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ export const userList = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1',
     createTime: '2025-01-02 14:30:00',
     status: 'active',
+    deptId: 4, // Frontend Group
   },
 ]
 

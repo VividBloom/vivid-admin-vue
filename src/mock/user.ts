@@ -46,6 +46,7 @@ export const userManagementMocks: MockMethod[] = [
         ...body,
         createTime: new Date().toLocaleString(),
         status: body.status || 'active',
+        deptId: body.deptId || null,
       }
       userList.push(newUser)
 

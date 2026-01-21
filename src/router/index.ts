@@ -86,6 +86,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: 'route.dict', keepAlive: true },
           },
           {
+            path: 'department',
+            name: 'DepartmentManagement',
+            component: () => import('@/pages/system/DepartmentManagement.vue'),
+            meta: { title: 'route.department', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),
