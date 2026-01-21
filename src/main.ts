@@ -16,7 +16,6 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'virtual:uno.css'
 import './styles/main.scss'
 
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { permissionDirective } from '@/directives/permission'
 import i18n from './i18n'
 
@@ -26,11 +25,6 @@ const app = createApp(App)
 // 创建Pinia实例并配置持久化插件
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
-
-// 全局注册 Element Plus 的所有图标组件，方便模板中直接使用
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
 
 // 注册权限指令
 app.directive('permission', permissionDirective)

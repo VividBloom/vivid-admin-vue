@@ -10,7 +10,7 @@
     <div class="page-header">
       <h2>{{ $t('permission.title') }}</h2>
       <el-button v-permission="'system:permission'" type="primary" @click="openCreateDialog">
-        <el-icon><Plus /></el-icon>
+        <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('permission.new') }}
       </el-button>
     </div>
@@ -23,7 +23,7 @@
             <div class="card-header">
               <span>{{ $t('permission.tree') }}</span>
               <el-button size="small" type="primary" link @click="reloadPermissions">
-                <el-icon><Refresh /></el-icon>{{ $t('tagsView.refresh') }}
+                <el-icon><div class="i-ep-refresh" /></el-icon>{{ $t('tagsView.refresh') }}
               </el-button>
             </div>
           </template>
@@ -191,7 +191,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Refresh } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permission'
 import { permissionApi } from '@/api'
 import { useI18n } from 'vue-i18n'

@@ -8,7 +8,7 @@
     <div class="page-header">
       <h2>{{ $t('userList.title') }}</h2>
       <el-button v-permission="'system:user'" type="primary" @click="handleCreate">
-        <el-icon><Plus /></el-icon>
+        <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('userList.newUser') }}
       </el-button>
     </div>
@@ -123,7 +123,6 @@
 import { ref, reactive, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
 import { roleApi, permissionApi, userApi } from '@/api'
 import { useI18n } from 'vue-i18n'
 

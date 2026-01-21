@@ -10,7 +10,7 @@
         <div class="card-header">
           <span class="header-title">{{ $t('changePassword.title') }}</span>
           <el-tooltip :content="$t('changePassword.tooltip')" placement="top">
-            <el-icon class="info-icon"><InfoFilled /></el-icon>
+            <el-icon class="info-icon"><div class="i-ep-info-filled" /></el-icon>
           </el-tooltip>
         </div>
       </template>
@@ -39,8 +39,11 @@
             type="password"
             show-password
             :placeholder="$t('changePassword.oldPasswordPlaceholder')"
-            prefix-icon="Lock"
-          />
+          >
+            <template #prefix>
+              <el-icon><div class="i-ep-lock" /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item :label="$t('changePassword.newPassword')" prop="newPassword">
@@ -82,7 +85,6 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { useI18n } from 'vue-i18n'
-import { Lock, Key, Check, InfoFilled } from '@element-plus/icons-vue'
 
 interface PasswordForm {
   oldPassword: string

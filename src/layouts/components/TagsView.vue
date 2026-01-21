@@ -23,7 +23,7 @@
           @contextmenu.prevent="openContextMenu(tag, $event)"
         >
           <el-icon v-if="tag.meta?.icon" class="tag-icon">
-            <component :is="tag.meta.icon"></component>
+            <div :class="tag.meta.icon" />
           </el-icon>
           <span class="tag-title">{{ $t(tag.title) }}</span>
           <el-icon
@@ -31,7 +31,7 @@
             class="close-icon"
             @click.prevent.stop="handleClose(tag)"
           >
-            <Close />
+            <div class="i-ep-close" />
           </el-icon>
         </div>
       </router-link>
@@ -43,22 +43,22 @@
       :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px' }"
     >
       <li @click="refreshSelectedTag">
-        <el-icon><Refresh /></el-icon>{{ $t('tagsView.refresh') }}
+        <el-icon><div class="i-ep-refresh" /></el-icon>{{ $t('tagsView.refresh') }}
       </li>
       <li @click="closeSelectedTag">
-        <el-icon><Close /></el-icon>{{ $t('tagsView.close') }}
+        <el-icon><div class="i-ep-close" /></el-icon>{{ $t('tagsView.close') }}
       </li>
       <li @click="closeOtherTags">
-        <el-icon><CircleClose /></el-icon>{{ $t('tagsView.closeOthers') }}
+        <el-icon><div class="i-ep-circle-close" /></el-icon>{{ $t('tagsView.closeOthers') }}
       </li>
       <li @click="closeLeftTags">
-        <el-icon><ArrowLeft /></el-icon>{{ $t('tagsView.closeLeft') }}
+        <el-icon><div class="i-ep-arrow-left" /></el-icon>{{ $t('tagsView.closeLeft') }}
       </li>
       <li @click="closeRightTag">
-        <el-icon><ArrowRight /></el-icon>{{ $t('tagsView.closeRight') }}
+        <el-icon><div class="i-ep-arrow-right" /></el-icon>{{ $t('tagsView.closeRight') }}
       </li>
       <li @click="closeAllTags">
-        <el-icon><Delete /></el-icon>{{ $t('tagsView.closeAll') }}
+        <el-icon><div class="i-ep-delete" /></el-icon>{{ $t('tagsView.closeAll') }}
       </li>
     </ul>
   </div>

@@ -42,7 +42,6 @@ pnpm install
 ```
 # UI 组件库
 npm add element-plus
-npm add -D @element-plus/icons-vue
 
 # 自动导入相关
 npm add -D unplugin-auto-import unplugin-vue-components

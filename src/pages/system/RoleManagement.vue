@@ -9,7 +9,7 @@
     <div class="page-header">
       <h2>{{ $t('role.title') }}</h2>
       <el-button v-permission="'system:role'" type="primary" @click="createRole">
-        <el-icon><Plus /></el-icon>
+        <el-icon><div class="i-ep-plus" /></el-icon>
         {{ $t('role.new') }}
       </el-button>
     </div>
@@ -117,7 +117,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permission'
 import { roleApi } from '@/api'
 import { useI18n } from 'vue-i18n'

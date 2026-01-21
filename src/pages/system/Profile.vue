@@ -14,7 +14,7 @@
                 {{ userStore.userName?.charAt(0)?.toUpperCase() }}
               </el-avatar>
               <div v-if="isEditMode" class="avatar-upload-icon">
-                <el-icon><Camera /></el-icon>
+                <div class="i-ep-camera" />
               </div>
             </div>
             <h2 class="user-name">{{ userStore.userName }}</h2>
@@ -128,7 +128,6 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { useI18n } from 'vue-i18n'
-import { User, Message, Iphone, Edit, Camera } from '@element-plus/icons-vue'
 
 // 类型定义
 interface ProfileForm {

@@ -9,7 +9,7 @@
       <!-- 侧边栏折叠按钮 (仅在大屏显示) -->
       <div v-if="!isSmallScreen" class="collapse-btn" @click="$emit('toggle-sidebar')">
         <el-icon size="20">
-          <component :is="sidebarCollapsed ? 'Expand' : 'Fold'"></component>
+          <div :class="sidebarCollapsed ? 'i-ep-expand' : 'i-ep-fold'" />
         </el-icon>
       </div>
       <!-- 面包屑导航 -->
@@ -85,21 +85,21 @@
         <span class="user-info">
           <el-avatar :size="32" :src="userStore.userInfo?.avatar"></el-avatar>
           <span class="user-name md:block hidden">{{ userStore.userName }}</span>
-          <el-icon><ArrowDown /></el-icon>
+          <el-icon><div class="i-ep-arrow-down" /></el-icon>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="toProfile">
-              <el-icon><User /></el-icon> {{ $t('app.profile') }}
+              <el-icon><div class="i-ep-user" /></el-icon> {{ $t('app.profile') }}
             </el-dropdown-item>
             <el-dropdown-item @click="toChangePassword">
-              <el-icon><Lock /></el-icon> {{ $t('route.changePassword') }}
+              <el-icon><div class="i-ep-lock" /></el-icon> {{ $t('route.changePassword') }}
             </el-dropdown-item>
             <el-dropdown-item @click="openSettings">
-              <el-icon><Setting /></el-icon> {{ $t('app.settings') }}
+              <el-icon><div class="i-ep-setting" /></el-icon> {{ $t('app.settings') }}
             </el-dropdown-item>
             <el-dropdown-item divided @click="handleLogout">
-              <el-icon><SwitchButton /></el-icon> {{ $t('app.logout') }}
+              <el-icon><div class="i-ep-switch-button" /></el-icon> {{ $t('app.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -121,8 +121,6 @@ import { useTagsViewsStore } from '@/stores/tagsView'
 import { useAppStore } from '@/stores/app'
 import SettingsDrawer from './SettingsDrawer.vue'
 import { useI18n } from 'vue-i18n'
-
-import { Sunny, Moon, Refresh, Lock } from '@element-plus/icons-vue'
 
 interface Props {
   sidebarCollapsed: boolean

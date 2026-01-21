@@ -8,10 +8,15 @@
         <el-switch
           v-model="isDark"
           inline-prompt
-          active-icon="Moon"
-          inactive-icon="Sunny"
           @change="(val: string | number | boolean) => toggleDark(Boolean(val))"
-        />
+        >
+          <template #active-icon>
+            <div class="i-ep-moon" />
+          </template>
+          <template #inactive-icon>
+            <div class="i-ep-sunny" />
+          </template>
+        </el-switch>
       </div>
 
       <!-- 语言设置 -->
@@ -50,7 +55,6 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
-import { Sunny, Moon } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: {
