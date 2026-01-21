@@ -80,6 +80,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: 'route.auditLog', keepAlive: true },
           },
           {
+            path: 'dict',
+            name: 'DictionaryManagement',
+            component: () => import('@/pages/system/DictionaryManagement.vue'),
+            meta: { title: 'route.dict', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),
@@ -131,25 +137,23 @@ router.beforeEach(async (to, from, next) => {
   // 如果目标路由需要认证且当前没有 token，则跳转到登录页
   if (to.meta.requiresAuth && !userStore.token) {
     next({ name: 'Login' })
-  } else {
+  } else if (userStore.token && permissionStore.userMenus.length === 0) {
     // 检查是否已加载权限信息（防止刷新丢失）
-    if (userStore.token && permissionStore.userMenus.length === 0) {
-      try {
-        // 并发获取用户信息和权限
-        const promises = [permissionStore.initPermissions()]
-        if (!userStore.userInfo) {
-          promises.push(userStore.fetchUserInfo())
-        }
-        await Promise.all(promises)
-        next({ ...to, replace: true })
-      } catch (error) {
-        console.error('Failed to load permissions:', error)
-        userStore.logout()
-        next({ name: 'Login' })
+    try {
+      // 并发获取用户信息和权限
+      const promises = [permissionStore.initPermissions()]
+      if (!userStore.userInfo) {
+        promises.push(userStore.fetchUserInfo())
       }
-    } else {
-      next()
+      await Promise.all(promises)
+      next({ ...to, replace: true })
+    } catch (error) {
+      console.error('Failed to load permissions:', error)
+      userStore.logout()
+      next({ name: 'Login' })
     }
+  } else {
+    next()
   }
 })
 

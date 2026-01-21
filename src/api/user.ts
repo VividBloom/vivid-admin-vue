@@ -16,4 +16,7 @@ export const userApi = {
 
   // 删除用户
   deleteUser: (id: number) => request.delete(`/user/delete/${id}`),
+
+  // 批量创建用户
+  batchCreateUser: (data: any[]) => request.post<API.User[]>('/user/batch-create', data),
 }

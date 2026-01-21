@@ -167,6 +167,6 @@ export const useAppStore = defineStore(
     persist: {
       paths: ['isDark', 'sidebarCollapsed', 'language', 'settings'],
       storage: localStorage,
-    },
+    } as any,
   }
 )

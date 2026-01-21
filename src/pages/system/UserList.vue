@@ -51,8 +51,8 @@
         </el-table-column>
         <el-table-column prop="status" :label="$t('userList.status')" width="100">
           <template #default="scope">
-            <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
-              {{ scope.row.status === 'active' ? $t('userList.enable') : $t('userList.disable') }}
+            <el-tag :type="getStatusTagType(scope.row.status)">
+              {{ getStatusLabel(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -132,8 +132,9 @@
         </el-form-item>
         <el-form-item :label="$t('userList.status')" prop="status">
           <el-radio-group v-model="userForm.status">
-            <el-radio label="active">{{ $t('userList.enable') }}</el-radio>
-            <el-radio label="inactive">{{ $t('userList.disable') }}</el-radio>
+            <el-radio v-for="item in userStatusOptions" :key="item.value" :label="item.value">
+              {{ item.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -156,9 +157,27 @@ import { roleApi, permissionApi, userApi } from '@/api'
 import { useI18n } from 'vue-i18n'
 import { useCurd } from '@/composables/useCurd'
 import CommonPagination from '@/components/CommonPagination.vue'
+import { useDictStore } from '@/stores/dictionary'
 
 const { t } = useI18n()
 const router = useRouter()
+const dictStore = useDictStore()
+
+// 字典数据
+const userStatusOptions = computed(() => dictStore.dictCache.userStatus || [])
+
+// 字典辅助函数
+const getStatusLabel = (status: string) => {
+  const item = userStatusOptions.value.find(i => i.value === status)
+  if (item) return item.label
+  return status === 'active' ? t('userList.enable') : t('userList.disable')
+}
+
+const getStatusTagType = (status: string) => {
+  const item = userStatusOptions.value.find(i => i.value === status)
+  if (item) return item.tagType as any
+  return status === 'active' ? 'success' : 'danger'
+}
 
 // 树形控件配置
 const treeProps = {
@@ -452,6 +471,7 @@ const submitUserForm = async () => {
 
 // 生命周期
 onMounted(() => {
+  dictStore.getDict('userStatus')
   loadUserList()
   fetchRoles()
   fetchPermissionTree()

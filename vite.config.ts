@@ -66,7 +66,8 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, ''),
-        bypass: (req, res, options) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        bypass: (req, _res, _options) => {
           const proxyUrl = new URL(req.url || '', 'http://localhost')
           if (
             proxyUrl.pathname.startsWith('/api/user') ||

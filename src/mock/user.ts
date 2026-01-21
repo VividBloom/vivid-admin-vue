@@ -125,6 +125,35 @@ export const userManagementMocks: MockMethod[] = [
       return resultError('User not found', 404)
     },
   },
+  {
+    url: '/api/user/batch-create',
+    method: 'post',
+    response: ({ body }: { body: any[] }) => {
+      if (!Array.isArray(body)) {
+        return resultError('Invalid data format', 400)
+      }
+
+      const newUsers = body.map((item, index) => ({
+        id: userList.length + index + 1,
+        ...item,
+        createTime: new Date().toLocaleString(),
+        status: item.status || 'active',
+        password: '123456', // Default password
+      }))
+
+      userList.push(...newUsers)
+
+      // Default role for imported users (e.g., common user)
+      const defaultRole = roles.find(r => r.code === 'user')
+      if (defaultRole) {
+        newUsers.forEach(u => {
+          userRoles.push({ userId: u.id, roleId: defaultRole.id })
+        })
+      }
+
+      return resultSuccess(newUsers)
+    },
+  },
 ]
 
 // 用户角色管理相关接口
