@@ -138,6 +138,7 @@
             v-model="userForm.deptId"
             :data="departmentList"
             :props="defaultProps"
+            node-key="id"
             check-strictly
             :render-after-expand="false"
             style="width: 100%"
