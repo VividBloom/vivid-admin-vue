@@ -1,116 +1,134 @@
 <!--
   个人资料页面 Profile
   - 展示并编辑当前用户的基本信息
-  - 支持修改密码并进行表单校验与提示
 -->
 <template>
   <div class="profile-container">
-    <!-- 个人信息卡片 -->
-    <el-card class="profile-card">
-      <template #header>
-        <div class="card-header">
-          <span class="header-title">个人信息</span>
-          <el-button type="primary" size="small" @click="toggleEditMode">
-            {{ isEditMode ? '取消编辑' : '编辑信息' }}
-          </el-button>
-        </div>
-      </template>
+    <el-row :gutter="20">
+      <!-- 左侧：个人简介卡片 -->
+      <el-col :xs="24" :sm="8">
+        <el-card class="profile-intro-card" shadow="hover">
+          <div class="user-info-header">
+            <div class="avatar-wrapper">
+              <el-avatar :size="100" :src="userStore.userInfo?.avatar || ''" class="user-avatar">
+                {{ userStore.userName?.charAt(0)?.toUpperCase() }}
+              </el-avatar>
+              <div v-if="isEditMode" class="avatar-upload-icon">
+                <el-icon><Camera /></el-icon>
+              </div>
+            </div>
+            <h2 class="user-name">{{ userStore.userName }}</h2>
+            <p class="user-role">{{ profileForm.role }}</p>
+          </div>
+          <div class="user-stats">
+            <div class="stat-item">
+              <div class="stat-value">12</div>
+              <div class="stat-label">{{ $t('profile.projects') }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">2,300</div>
+              <div class="stat-label">{{ $t('profile.contributions') }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">18</div>
+              <div class="stat-label">{{ $t('profile.teams') }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
 
-      <el-form
-        ref="profileFormRef"
-        :model="profileForm"
-        :rules="profileRules"
-        :disabled="!isEditMode"
-        label-width="100px"
-        label-position="right"
-      >
-        <el-form-item label="用户ID">
-          <el-input v-model="profileForm.id" disabled />
-        </el-form-item>
+      <!-- 右侧：详细信息表单 -->
+      <el-col :xs="24" :sm="16">
+        <el-card class="profile-detail-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span class="header-title">{{ $t('profile.basicInfo') }}</span>
+              <el-button type="primary" link @click="toggleEditMode">
+                <el-icon class="mr-1"><Edit /></el-icon>
+                {{ isEditMode ? $t('profile.cancelEdit') : $t('profile.edit') }}
+              </el-button>
+            </div>
+          </template>
 
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="profileForm.username" :disabled="true" placeholder="请输入用户名" />
-        </el-form-item>
+          <el-form
+            ref="profileFormRef"
+            :model="profileForm"
+            :rules="profileRules"
+            :disabled="!isEditMode"
+            label-width="100px"
+            label-position="right"
+            size="large"
+            class="profile-form"
+          >
+            <el-form-item :label="$t('profile.userId')">
+              <el-input v-model="profileForm.id" disabled />
+            </el-form-item>
 
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="profileForm.email" placeholder="请输入邮箱地址" />
-        </el-form-item>
+            <el-form-item :label="$t('profile.username')" prop="username">
+              <el-input
+                v-model="profileForm.username"
+                disabled
+                :placeholder="$t('profile.enterUsername')"
+              >
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
 
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="profileForm.phone" placeholder="请输入手机号" />
-        </el-form-item>
+            <el-form-item :label="$t('profile.email')" prop="email">
+              <el-input v-model="profileForm.email" :placeholder="$t('profile.enterEmail')">
+                <template #prefix>
+                  <el-icon><Message /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
 
-        <el-form-item label="角色">
-          <el-tag type="info">{{ profileForm.role }}</el-tag>
-        </el-form-item>
+            <el-form-item :label="$t('profile.phone')" prop="phone">
+              <el-input v-model="profileForm.phone" :placeholder="$t('profile.enterPhone')">
+                <template #prefix>
+                  <el-icon><Iphone /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
 
-        <el-form-item label="注册时间">
-          <span class="readonly-text">{{ profileForm.createTime }}</span>
-        </el-form-item>
+            <el-form-item :label="$t('profile.registerTime')">
+              <el-date-picker
+                v-model="profileForm.createTime"
+                type="datetime"
+                disabled
+                style="width: 100%"
+              />
+            </el-form-item>
 
-        <el-form-item v-if="isEditMode">
-          <el-button type="primary" @click="handleSaveProfile"> 保存修改 </el-button>
-          <el-button @click="resetForm">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+            <el-form-item :label="$t('profile.bio')">
+              <el-input
+                v-model="profileForm.bio"
+                type="textarea"
+                :rows="4"
+                :placeholder="$t('profile.enterBio')"
+              />
+            </el-form-item>
 
-    <!-- 修改密码卡片 -->
-    <el-card class="profile-card" style="margin-top: 20px">
-      <template #header>
-        <div class="card-header">
-          <span class="header-title">修改密码</span>
-        </div>
-      </template>
-
-      <el-form
-        ref="passwordFormRef"
-        :model="passwordForm"
-        :rules="passwordRules"
-        label-width="100px"
-        label-position="right"
-      >
-        <el-form-item label="原密码" prop="oldPassword">
-          <el-input
-            v-model="passwordForm.oldPassword"
-            type="password"
-            show-password
-            placeholder="请输入原密码"
-          />
-        </el-form-item>
-
-        <el-form-item label="新密码" prop="newPassword">
-          <el-input
-            v-model="passwordForm.newPassword"
-            type="password"
-            show-password
-            placeholder="请输入新密码"
-          />
-        </el-form-item>
-
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            type="password"
-            show-password
-            placeholder="请再次输入新密码"
-          />
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="warning" :loading="passwordLoading" @click="handleChangePassword">
-            修改密码
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+            <el-form-item v-if="isEditMode">
+              <el-button type="primary" @click="handleSaveProfile">
+                {{ $t('profile.save') }}
+              </el-button>
+              <el-button @click="resetForm">{{ $t('app.reset') }}</el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { useI18n } from 'vue-i18n'
+import { User, Message, Iphone, Edit, Camera } from '@element-plus/icons-vue'
 
 // 类型定义
 interface ProfileForm {
@@ -120,21 +138,16 @@ interface ProfileForm {
   phone: string
   role: string
   createTime: string
+  bio?: string
 }
 
-interface PasswordForm {
-  oldPassword: string
-  newPassword: string
-  confirmPassword: string
-}
+const { t } = useI18n()
 
 // 表单引用
 const profileFormRef = ref<FormInstance>()
-const passwordFormRef = ref<FormInstance>()
 
 // 响应式数据
 const isEditMode = ref(false)
-const passwordLoading = ref(false)
 const userStore = useUserStore()
 
 // 表单数据
@@ -145,64 +158,25 @@ const profileForm = reactive<ProfileForm>({
   phone: '',
   role: '',
   createTime: '',
-})
-
-const passwordForm = reactive<PasswordForm>({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+  bio: t('profile.defaultBio'),
 })
 
 // 表单验证规则
-const profileRules: FormRules = {
+const profileRules = computed<FormRules>(() => ({
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' },
+    { required: true, message: t('profile.enterEmail'), trigger: 'blur' },
+    { type: 'email', message: t('profile.invalidEmail'), trigger: 'blur' },
   ],
   phone: [
     {
       pattern: /^1[3-9]\d{9}$/,
-      message: '请输入正确的手机号码',
+      message: t('profile.invalidPhone'),
       trigger: 'blur',
     },
   ],
-}
+}))
 
-const passwordRules: FormRules = {
-  oldPassword: [
-    { required: true, message: '请输入原密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少6位', trigger: 'blur' },
-  ],
-  newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少6位', trigger: 'blur' },
-    {
-      validator: (rule, value, callback) => {
-        if (value === passwordForm.oldPassword) {
-          callback(new Error('新密码不能与原密码相同'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur',
-    },
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
-    {
-      validator: (rule, value, callback) => {
-        if (value !== passwordForm.newPassword) {
-          callback(new Error('两次输入密码不一致'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur',
-    },
-  ],
-}
-
-// 方法定义：编辑、重置、保存个人信息与修改密码
+// 方法定义
 const toggleEditMode = () => {
   isEditMode.value = !isEditMode.value
   if (!isEditMode.value) resetForm()
@@ -210,100 +184,127 @@ const toggleEditMode = () => {
 
 // 将表单重置为当前用户信息的值
 const resetForm = () => {
-  if (userStore.userInfo) Object.assign(profileForm, userStore.userInfo)
+  if (userStore.userInfo) {
+    Object.assign(profileForm, userStore.userInfo)
+    // 模拟一些额外字段
+    if (!profileForm.bio) profileForm.bio = t('profile.defaultBio')
+  }
   if (profileFormRef.value) profileFormRef.value.clearValidate()
 }
 
-// 保存个人信息：校验表单后更新 store（此处为模拟 API）
+// 保存个人信息
 const handleSaveProfile = async () => {
   if (!profileFormRef.value) return
   try {
     const valid = await profileFormRef.value.validate()
     if (!valid) return
+
+    // 模拟 API 调用
     await new Promise(resolve => setTimeout(resolve, 1000))
+
     userStore.updateUserInfo(profileForm)
-    ElMessage.success('个人信息更新成功')
+    ElMessage.success(t('profile.updateSuccess'))
     isEditMode.value = false
   } catch (error) {
-    ElMessage.error('保存失败，请检查表单数据')
-  }
-}
-
-// 修改密码：校验后显示确认对话框并调用登出（模拟场景）
-const handleChangePassword = async () => {
-  if (!passwordFormRef.value) return
-  try {
-    const valid = await passwordFormRef.value.validate()
-    if (!valid) return
-    passwordLoading.value = true
-    await ElMessageBox.confirm('确定要修改密码吗？修改后需要重新登录。', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    })
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    Object.assign(passwordForm, { oldPassword: '', newPassword: '', confirmPassword: '' })
-    if (passwordFormRef.value) passwordFormRef.value.resetFields()
-    ElMessage.success('密码修改成功，请重新登录')
-    setTimeout(() => userStore.logout(), 2000)
-  } catch (error) {
-    if (error !== 'cancel') ElMessage.error('密码修改失败，请检查原密码是否正确')
-  } finally {
-    passwordLoading.value = false
+    ElMessage.error(t('profile.saveFailed'))
   }
 }
 
 // 生命周期
 onMounted(() => {
   // 初始化表单数据
-  if (userStore.userInfo) {
-    Object.assign(profileForm, userStore.userInfo)
-  }
+  resetForm()
 })
 </script>
 
 <style scoped lang="scss">
 .profile-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.profile-card {
+.profile-intro-card {
   margin-bottom: 20px;
+  text-align: center;
 
-  :deep(.el-card__header) {
-    padding: 16px 20px;
-    background-color: #f5f7fa;
+  .user-info-header {
+    padding: 20px 0;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    display: inline-block;
+
+    .user-avatar {
+      border: 4px solid var(--el-bg-color);
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-upload-icon {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: var(--el-color-primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid var(--el-bg-color);
+    }
+  }
+
+  .user-name {
+    margin: 16px 0 8px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+  }
+
+  .user-role {
+    color: var(--el-text-color-secondary);
+    margin: 0;
+  }
+
+  .user-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px 0;
+    border-top: 1px solid var(--el-border-color-lighter);
+
+    .stat-item {
+      .stat-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--el-text-color-secondary);
+        margin-top: 4px;
+      }
+    }
   }
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.profile-detail-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
 }
 
-.header-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.readonly-text {
-  color: #909399;
-  font-size: 14px;
-}
-
-:deep(.el-form-item) {
-  margin-bottom: 22px;
-}
-
-:deep(.el-input) {
-  max-width: 300px;
-}
-
-:deep(.el-tag) {
-  margin-right: 10px;
+.mr-1 {
+  margin-right: 4px;
 }
 </style>

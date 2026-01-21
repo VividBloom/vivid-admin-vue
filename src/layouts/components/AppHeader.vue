@@ -13,10 +13,14 @@
         </el-icon>
       </div>
       <!-- 面包屑导航 -->
-      <el-breadcrumb class="breadcrumb hidden md:block" separator="/">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb
+        v-if="appStore.settings.showBreadcrumb"
+        class="breadcrumb hidden md:block"
+        separator="/"
+      >
+        <el-breadcrumb-item :to="{ path: '/' }">{{ $t('route.dashboard') }}</el-breadcrumb-item>
         <el-breadcrumb-item v-for="item in breadcrumbList" :key="item.path">
-          {{ item.meta?.title }}
+          {{ $t(String(item.meta?.title || '')) }}
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -24,7 +28,10 @@
     <div class="header-right">
       <!-- 暗黑模式切换按钮 -->
       <div class="theme-switch">
-        <el-tooltip :content="isDark ? '切换到亮色模式' : '切换到暗黑模式'" placement="bottom">
+        <el-tooltip
+          :content="isDark ? $t('app.switchToLight') : $t('app.switchToDark')"
+          placement="bottom"
+        >
           <el-button circle :class="{ 'dark-active': isDark }" @click="toggleTheme">
             <el-icon v-if="isDark" class="moon-icon">
               <Moon />
@@ -36,22 +43,24 @@
         </el-tooltip>
       </div>
       <!-- 刷新按钮 -->
-      <el-tooltip content="刷新当前页面" placement="bottom">
+      <el-tooltip :content="$t('app.refreshPage')" placement="bottom">
         <div
           class="header-action"
-          title="刷新当前页面"
+          :title="$t('app.refreshPage')"
           :class="{ refreshing: isRefreshing }"
           @click="handleRefresh"
         >
           <el-icon>
             <Refresh />
           </el-icon>
-          <!-- <span v-if="!isMobile">{{ isRefreshing ? '刷新中...' : '刷新' }}</span> -->
         </div>
       </el-tooltip>
       <!-- 全屏切换 -->
       <div class="header-action" @click="toggleFullScreen">
-        <el-tooltip effect="dark" :content="isFullscreen ? '退出全屏' : '全屏'">
+        <el-tooltip
+          effect="dark"
+          :content="isFullscreen ? $t('app.exitFullScreen') : $t('app.fullScreen')"
+        >
           <el-icon>
             <component :is="isFullscreen ? 'CopyDocument' : 'FullScreen'"></component>
           </el-icon>
@@ -65,7 +74,9 @@
         </el-badge>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>您有{{ unreadCount }}条未读消息</el-dropdown-item>
+            <el-dropdown-item>{{
+              $t('app.unreadMessage', { count: unreadCount })
+            }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -79,13 +90,16 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="toProfile">
-              <el-icon><User /></el-icon> 个人中心
+              <el-icon><User /></el-icon> {{ $t('app.profile') }}
+            </el-dropdown-item>
+            <el-dropdown-item @click="toChangePassword">
+              <el-icon><Lock /></el-icon> {{ $t('route.changePassword') }}
             </el-dropdown-item>
             <el-dropdown-item @click="openSettings">
-              <el-icon><Setting /></el-icon> 系统设置
+              <el-icon><Setting /></el-icon> {{ $t('app.settings') }}
             </el-dropdown-item>
             <el-dropdown-item divided @click="handleLogout">
-              <el-icon><SwitchButton /></el-icon> 退出登录
+              <el-icon><SwitchButton /></el-icon> {{ $t('app.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -94,25 +108,7 @@
   </el-header>
 
   <!-- 系统设置 Drawer -->
-  <el-drawer v-model="settingsDrawerVisible" title="系统设置" direction="rtl" size="400px">
-    <!-- 布局设置 -->
-    <div class="setting-item">
-      <h4>布局设置</h4>
-      <el-radio-group v-model="layoutSetting" @change="handleLayoutChange">
-        <el-radio label="expanded">展开侧边栏</el-radio>
-        <el-radio label="collapsed">折叠侧边栏</el-radio>
-      </el-radio-group>
-    </div>
-
-    <!-- 语言设置 -->
-    <div class="setting-item">
-      <h4>语言设置</h4>
-      <el-select v-model="languageSetting" @change="handleLanguageChange">
-        <el-option label="中文" value="zh-cn"></el-option>
-        <el-option label="English" value="en"></el-option>
-      </el-select>
-    </div>
-  </el-drawer>
+  <SettingsDrawer v-model="settingsDrawerVisible" />
 </template>
 
 <script setup lang="ts">
@@ -123,8 +119,10 @@ import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useTagsViewsStore } from '@/stores/tagsView'
 import { useAppStore } from '@/stores/app'
+import SettingsDrawer from './SettingsDrawer.vue'
+import { useI18n } from 'vue-i18n'
 
-import { Sunny, Moon, Refresh } from '@element-plus/icons-vue'
+import { Sunny, Moon, Refresh, Lock } from '@element-plus/icons-vue'
 
 interface Props {
   sidebarCollapsed: boolean
@@ -142,15 +140,11 @@ const tagsViewStore = useTagsViewsStore()
 
 // 从 appStore 获取主题相关状态与切换方法
 const appStore = useAppStore()
+const { t } = useI18n()
 const { isDark, toggleDark, isSmallScreen } = appStore
 
 // 系统设置 Drawer 状态
 const settingsDrawerVisible = ref(false)
-
-// 设置选项状态
-const themeSetting = ref(isDark ? 'dark' : 'light')
-const layoutSetting = ref('expanded') // 默认展开
-const languageSetting = ref('zh-cn') // 默认中文
 
 // 全屏状态与未读消息数量等本地状态
 const isFullscreen = ref(false)
@@ -159,7 +153,31 @@ const unreadCount = ref(3)
 // 面包屑：路由中带有 meta.title 的项
 const breadcrumbList = computed(() => {
   const matched = route.matched.filter(item => item.meta?.title)
-  return matched.slice(1) // 去掉首页，返回从一级菜单开始的面包屑
+  const result = matched.slice(1) // 去掉首页，返回从一级菜单开始的面包屑
+
+  // 处理父级路由（用于详情页显示上级列表）
+  if (route.meta?.parent) {
+    const parentName = route.meta.parent as string
+    try {
+      const parentRoute = router.resolve({ name: parentName })
+      if (parentRoute) {
+        const parentItem = {
+          path: parentRoute.path,
+          meta: parentRoute.meta,
+        }
+        // 插入到当前页面之前
+        if (result.length > 0) {
+          result.splice(result.length - 1, 0, parentItem as any)
+        } else {
+          result.unshift(parentItem as any)
+        }
+      }
+    } catch (e) {
+      console.warn('解析父级路由失败:', parentName)
+    }
+  }
+
+  return result
 })
 
 // 切换主题（暗/亮）
@@ -183,14 +201,14 @@ const handleRefresh = async () => {
     isRefreshing.value = true
     const currentPage = route.fullPath
     if (!currentPage) {
-      ElMessage.warning('无法获取当前页面信息')
+      ElMessage.warning(t('app.cannotGetPageInfo'))
       return
     }
 
     // 使用 tagsViewStore 标记当前页面需要刷新（组件内会通过 refreshFlag 使用该标记）
     tagsViewStore.markViewForRefresh(currentPage)
 
-    ElMessage.info({ message: '页面刷新中....', duration: 1000 })
+    ElMessage.info({ message: t('app.refreshing'), duration: 1000 })
 
     // 优先尝试页面内注入的刷新方法，否则通过路由替换来刷新
     if (typeof (window as any).reloadCurrentPage === 'function') {
@@ -199,10 +217,10 @@ const handleRefresh = async () => {
       await router.replace({ path: currentPage, query: { _t: Date.now() } })
     }
 
-    setTimeout(() => ElMessage.success('页面刷新完成'), 600)
+    setTimeout(() => ElMessage.success(t('app.refreshSuccess')), 600)
   } catch (e) {
     console.error('刷新失败: ', e)
-    ElMessage.error('刷新失败')
+    ElMessage.error(t('app.refreshFailed'))
   } finally {
     // 延迟清除刷新状态并清理刷新标记，保留短暂的视觉反馈
     setTimeout(() => {
@@ -226,39 +244,6 @@ const handleKeydown = (event: KeyboardEvent) => {
 // 打开系统设置 Drawer
 const openSettings = () => {
   settingsDrawerVisible.value = true
-  // 同步当前设置值
-  themeSetting.value = isDark ? 'dark' : 'light'
-  // 假设布局设置基于侧边栏状态（这里简化，可扩展）
-  layoutSetting.value = 'expanded' // 或从 store 获取
-}
-
-// 处理主题变更
-const handleThemeChange = (value: string | number | boolean | undefined) => {
-  const val = value as string
-  if (val === 'dark') {
-    toggleDark()
-  } else if (isDark) toggleDark()
-}
-
-// 处理布局变更
-const handleLayoutChange = (value: string | number | boolean | undefined) => {
-  const val = value as string
-  // 这里可以调用 toggle-sidebar 事件或直接修改 store
-  // 简化实现：假设通过 emit 通知父组件
-  if (val === 'collapsed') {
-    // 折叠侧边栏
-    // emit('toggle-sidebar') // 如果需要
-  } else {
-    // 展开侧边栏
-  }
-  ElMessage.success(`布局已切换为${val === 'collapsed' ? '折叠' : '展开'}`)
-}
-
-// 处理语言变更
-const handleLanguageChange = (value: string) => {
-  // 这里可以设置 Element Plus 的 locale
-  // 例如：app.config.globalProperties.$ELEMENT.locale = value === 'zh-cn' ? zhCn : en
-  ElMessage.success(`语言已切换为${value === 'zh-cn' ? '中文' : 'English'}`)
 }
 
 onMounted(() => {
@@ -289,20 +274,21 @@ const toggleFullScreen = () => {
 
 // 页面跳转与用户菜单操作
 const toProfile = () => router.push('/system/profile')
+const toChangePassword = () => router.push('/system/password')
 
 const handleLogout = async () => {
   try {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('app.confirmLogout'), t('app.confirm'), {
+      confirmButtonText: t('app.ok'),
+      cancelButtonText: t('app.cancel'),
       type: 'warning',
     })
 
     await userStore.logout()
-    ElMessage.success('已退出登录')
+    ElMessage.success(t('app.logoutSuccess'))
     router.push('/login')
   } catch (error) {
-    console.warn('用户取消退出')
+    console.warn(t('app.logoutCancelled'))
   }
 }
 </script>

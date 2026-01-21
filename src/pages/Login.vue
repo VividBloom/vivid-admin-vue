@@ -8,10 +8,26 @@
   <div
     class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 transition-colors duration-300"
   >
-    <!-- Theme Toggle -->
-    <div class="absolute top-4 right-4 z-50">
+    <!-- Top Right Controls -->
+    <div class="absolute top-4 right-4 z-50 flex gap-2">
+      <!-- Language Toggle -->
+      <el-dropdown @command="handleLanguageChange">
+        <button
+          class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-colors duration-300 flex items-center justify-center"
+        >
+          <span class="text-sm font-bold">{{ appStore.language === 'en' ? 'EN' : 'ZH' }}</span>
+        </button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="zh-cn">{{ $t('settings.zh') }}</el-dropdown-item>
+            <el-dropdown-item command="en">{{ $t('settings.en') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
+      <!-- Theme Toggle -->
       <button
-        class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-colors duration-300"
+        class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-colors duration-300 flex items-center justify-center"
         @click="toggleDark()"
       >
         <div v-if="isDark" class="i-mdi-weather-night text-xl" />
@@ -25,36 +41,38 @@
       <!-- Left Side - Form -->
       <div class="w-full md:w-1/2 p-8 md:p-12">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Welcome Back</h2>
-          <p class="text-gray-500 dark:text-gray-400">Please enter your details to sign in</p>
+          <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+            {{ $t('login.title') }}
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400">{{ $t('login.subtitle') }}</p>
         </div>
 
         <form class="space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-2">
-            <label for="username" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Username</label
-            >
+            <label for="username" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+              $t('login.username')
+            }}</label>
             <input
               id="username"
               v-model="username"
               type="text"
               name="username"
-              placeholder="Enter your username"
+              :placeholder="$t('login.usernamePlaceholder')"
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
               required
             />
           </div>
 
           <div class="space-y-2">
-            <label for="password" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Password</label
-            >
+            <label for="password" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+              $t('login.password')
+            }}</label>
             <input
               id="password"
               v-model="password"
               type="password"
               name="password"
-              placeholder="Enter your password"
+              :placeholder="$t('login.passwordPlaceholder')"
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
               required
             />
@@ -71,14 +89,14 @@
                 for="remember-me"
                 class="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
               >
-                Remember me
+                {{ $t('login.rememberMe') }}
               </label>
             </div>
             <a
               href="#"
               class="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
             >
-              Forgot password?
+              {{ $t('login.forgotPassword') }}
             </a>
           </div>
 
@@ -86,7 +104,7 @@
             type="submit"
             class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-300"
           >
-            Sign in
+            {{ $t('login.loginBtn') }}
           </button>
 
           <div class="relative my-6">
@@ -94,9 +112,9 @@
               <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                >Or continue with</span
-              >
+              <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                {{ $t('login.otherLogin') }}
+              </span>
             </div>
           </div>
 
@@ -119,12 +137,12 @@
         </form>
 
         <p class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account?
+          {{ $t('login.noAccount') }}
           <a
             href="#"
             class="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
           >
-            Sign up
+            {{ $t('login.signUp') }}
           </a>
         </p>
       </div>
@@ -167,6 +185,10 @@ const appStore = useAppStore()
 // 响应式主题状态（来自 app store）
 const { isDark } = storeToRefs(appStore)
 const { toggleDark } = appStore
+
+const handleLanguageChange = (lang: string) => {
+  appStore.setLanguage(lang)
+}
 
 // 表单字段
 const username = ref('')

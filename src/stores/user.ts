@@ -12,6 +12,7 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { storage } from '@/utils/storage'
 import { usePermissionStore } from './permission'
+import i18n from '@/i18n'
 
 export const useUserStore = defineStore(
   'user',
@@ -39,12 +40,12 @@ export const useUserStore = defineStore(
           // 初始化用户权限
           const permissionStore = usePermissionStore()
           await permissionStore.initPermissions()
-          ElMessage.success('登录成功')
+          ElMessage.success(i18n.global.t('store.loginSuccess'))
           return true
         }
         return false
       } catch (e: any) {
-        ElMessage.error(e.message || '登录失败')
+        ElMessage.error(e.message || i18n.global.t('store.loginFailed'))
         return false
       } finally {
         loginLoading.value = false
@@ -69,7 +70,7 @@ export const useUserStore = defineStore(
         permissionStore.clearPermissions()
 
         router.push('/login')
-        ElMessage.success('已退出登录')
+        ElMessage.success(i18n.global.t('store.logoutSuccess'))
       }
     }
 
@@ -88,7 +89,7 @@ export const useUserStore = defineStore(
     // 从后端获取用户信息，若 token 无效则抛出错误
     const fetchUserInfo = async () => {
       if (!token.value) {
-        throw new Error('未登录')
+        throw new Error(i18n.global.t('store.notLoggedIn'))
       }
       try {
         const response = await getUserInfoApi()

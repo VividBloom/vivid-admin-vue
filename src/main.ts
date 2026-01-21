@@ -18,6 +18,7 @@ import './styles/main.scss'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { permissionDirective } from '@/directives/permission'
+import i18n from './i18n'
 
 // 创建根应用实例
 const app = createApp(App)
@@ -38,6 +39,7 @@ app.directive('permission', permissionDirective)
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+app.use(i18n)
 
 // 将应用挂载到 index.html 中的 #app 节点
 app.mount('#app')

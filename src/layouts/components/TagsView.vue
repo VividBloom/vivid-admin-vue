@@ -25,7 +25,7 @@
           <el-icon v-if="tag.meta?.icon" class="tag-icon">
             <component :is="tag.meta.icon"></component>
           </el-icon>
-          <span class="tag-title">{{ tag.title }}</span>
+          <span class="tag-title">{{ $t(tag.title) }}</span>
           <el-icon
             v-if="!tag.affix && !isSmallScreen"
             class="close-icon"
@@ -43,22 +43,22 @@
       :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px' }"
     >
       <li @click="refreshSelectedTag">
-        <el-icon><Refresh /></el-icon>刷新
+        <el-icon><Refresh /></el-icon>{{ $t('tagsView.refresh') }}
       </li>
       <li @click="closeSelectedTag">
-        <el-icon><Close /></el-icon>关闭
+        <el-icon><Close /></el-icon>{{ $t('tagsView.close') }}
       </li>
       <li @click="closeOtherTags">
-        <el-icon><CircleClose /></el-icon>关闭其他
+        <el-icon><CircleClose /></el-icon>{{ $t('tagsView.closeOthers') }}
       </li>
       <li @click="closeLeftTags">
-        <el-icon><ArrowLeft /></el-icon>关闭左侧
+        <el-icon><ArrowLeft /></el-icon>{{ $t('tagsView.closeLeft') }}
       </li>
       <li @click="closeRightTag">
-        <el-icon><ArrowRight /></el-icon>关闭右侧
+        <el-icon><ArrowRight /></el-icon>{{ $t('tagsView.closeRight') }}
       </li>
       <li @click="closeAllTags">
-        <el-icon><Delete /></el-icon>关闭全部
+        <el-icon><Delete /></el-icon>{{ $t('tagsView.closeAll') }}
       </li>
     </ul>
   </div>
@@ -72,12 +72,14 @@ import Sortable from 'sortablejs'
 import { useTagsViewsStore, type TagView } from '@/stores/tagsView'
 import { useAppStore } from '@/stores/app'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 // 依赖注入：从 AppMain 注入的刷新方法（reloadCurrentPage）
 const reloadCurrentPage = inject('reloadCurrentPage') as () => Promise<void>
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const tagsViewStore = useTagsViewsStore()
 const appStore = useAppStore()
@@ -140,7 +142,7 @@ const handleTagClick = (tag: TagView, e: MouseEvent) => {
 // 关闭标签并在必要时切换到相邻标签或首页
 const handleClose = async (tag: TagView) => {
   if (tag.affix) {
-    ElMessage.warning('固定标签不能关闭')
+    ElMessage.warning(t('tagsView.cannotCloseAffix'))
     return
   }
 
@@ -164,14 +166,14 @@ const refreshSelectedTag = async () => {
     refreshLoading.value = true
     const currentTag = contextMenuTag.value || visitedViews.value.find(v => isActive(v))
     if (!currentTag) {
-      ElMessage.warning('没有可刷新的页面')
+      ElMessage.warning(t('tagsView.noPageToRefresh'))
       return
     }
 
     // 标记需要刷新，组件根据标记刷新自己
     tagsViewStore.markViewForRefresh(currentTag.path)
 
-    const messageInstance = ElMessage.info({ message: '正在刷新....', duration: 0 })
+    const messageInstance = ElMessage.info({ message: t('app.refreshing'), duration: 0 })
 
     // 优先使用注入的刷新方法（AppMain 提供），否则通过路由强制刷新
     if (reloadCurrentPage) {
@@ -181,10 +183,10 @@ const refreshSelectedTag = async () => {
     }
 
     messageInstance.close()
-    ElMessage.success({ message: '刷新完成', duration: 2000 })
+    ElMessage.success({ message: t('app.refreshSuccess'), duration: 2000 })
   } catch (e) {
     console.error('刷新页面失败:', e)
-    ElMessage.error('刷新页面失败')
+    ElMessage.error(t('app.refreshFailed'))
   } finally {
     // 可选地延迟清除刷新标记，给予组件时间完成更新
     setTimeout(() => {
@@ -279,7 +281,7 @@ onMounted(() => {
   tagsViewStore.addView({
     path: '/dashboard',
     fullPath: '/dashboard',
-    meta: { title: '仪表盘', affix: true },
+    meta: { title: 'route.dashboard', affix: true },
     name: 'Dashboard',
   } as any)
   document.addEventListener('click', closeContextMenu)

@@ -20,7 +20,7 @@
         <!-- 头部 -->
         <app-header :sidebar-collapsed="isSidebarCollapsed" @toggle-sidebar="toggleSidebar" />
         <!-- 标签页 -->
-        <tags-view />
+        <tags-view v-if="appStore.settings.showTagsView" />
         <!-- 主内容区 -->
         <app-main />
       </el-container>
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 // 主布局逻辑：控制侧边栏折叠与提供全局刷新/状态给子组件
 import { ref, provide, computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { usePermissionStore } from '@/stores/permission'
 
@@ -42,8 +43,7 @@ import TagsView from './components/TagsView.vue'
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 
-// 侧边栏折叠状态（提供给子组件用于 UI 渲染）
-const isSidebarCollapsed = ref(false)
+const { sidebarCollapsed: isSidebarCollapsed } = storeToRefs(appStore)
 
 // 侧边栏模式（大屏垂直，小屏水平）
 const sidebarMode = computed(() => (appStore.isSmallScreen ? 'horizontal' : 'vertical'))
@@ -54,7 +54,7 @@ watch(
   () => appStore.isSmallScreen,
   newVal => {
     if (newVal) {
-      isSidebarCollapsed.value = true
+      appStore.sidebarCollapsed = true
     }
   },
   { immediate: true }
@@ -62,7 +62,7 @@ watch(
 
 // 切换侧边栏折叠状态的回调，由头部或侧边栏触发
 const toggleSidebar = () => {
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
+  appStore.toggleSidebar()
 }
 
 // 全局刷新方法：派发全局事件，子组件可监听并执行自己的刷新逻辑

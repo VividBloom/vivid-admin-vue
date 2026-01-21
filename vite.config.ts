@@ -66,6 +66,16 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, ''),
+        bypass: (req, res, options) => {
+          const proxyUrl = new URL(req.url || '', 'http://localhost')
+          if (
+            proxyUrl.pathname.startsWith('/api/user') ||
+            proxyUrl.pathname.startsWith('/api/role') ||
+            proxyUrl.pathname.startsWith('/api/permission')
+          ) {
+            return req.url
+          }
+        },
       },
     },
   },

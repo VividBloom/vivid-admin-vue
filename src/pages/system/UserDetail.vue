@@ -8,26 +8,44 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>用户详情</span>
-          <el-button @click="$router.back()">返回</el-button>
+          <span>{{ $t('route.userDetail') }}</span>
+          <el-button @click="$router.back()">{{ $t('app.back') }}</el-button>
         </div>
       </template>
 
       <!-- 通过 props 接收参数 -->
       <div v-if="userInfo">
-        <el-descriptions title="用户信息" border>
-          <el-descriptions-item label="用户ID">{{ userInfo.id }}</el-descriptions-item>
-          <el-descriptions-item label="用户名">{{ userInfo.username }}</el-descriptions-item>
-          <el-descriptions-item label="邮箱">{{ userInfo.email }}</el-descriptions-item>
-          <el-descriptions-item label="角色">{{ userInfo.role }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ userInfo.createTime }}</el-descriptions-item>
+        <el-descriptions :title="$t('userDetail.info')" border>
+          <el-descriptions-item :label="$t('userList.id')">{{ userInfo.id }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.username')">{{
+            userInfo.username
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.email')">{{
+            userInfo.email
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.role')">{{
+            userInfo.role
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.createTime')">{{
+            userInfo.createTime
+          }}</el-descriptions-item>
+
+          <el-descriptions-item :label="$t('userList.email')">{{
+            userInfo.email
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.role')">{{
+            userInfo.role
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('userList.createTime')">{{
+            userInfo.createTime
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
 
       <!-- 或者直接通过 route 对象获取参数 -->
       <div v-else>
-        <p>用户ID: {{ $route.params.id }}</p>
-        <p>正在加载用户信息...</p>
+        <p>{{ $t('userList.id') }}: {{ $route.params.id }}</p>
+        <p>{{ $t('app.loading') }}</p>
       </div>
     </el-card>
   </div>
@@ -57,9 +75,9 @@ const loadUserDetail = async () => {
   setTimeout(() => {
     userInfo.value = {
       id: userId,
-      username: `用户${userId}`,
+      username: `User${userId}`,
       email: `user${userId}@example.com`,
-      role: '普通用户',
+      role: 'User',
       createTime: '2025-01-01',
     }
   }, 300)

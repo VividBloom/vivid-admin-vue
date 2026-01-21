@@ -4,9 +4,11 @@
 -->
 <template>
   <div class="not-found">
-    <el-result icon="warning" title="404" sub-title="抱歉，您访问的页面不存在">
+    <el-result icon="warning" title="404" :sub-title="$t('route.notFoundSubtitle')">
       <template #extra>
-        <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
+        <el-button type="primary" @click="$router.push('/')">{{
+          $t('route.backToHome')
+        }}</el-button>
       </template>
     </el-result>
   </div>

@@ -6,6 +6,7 @@
 import { defineStore } from 'pinia'
 import type { RouteLocationNormalized } from 'vue-router'
 import { storage } from '@/utils/storage'
+import i18n from '@/i18n'
 
 export interface TagView {
   title: string
@@ -41,7 +42,7 @@ export const useTagsViewsStore = defineStore('tagsView', {
         return
       }
       const tagView: TagView = {
-        title: (view.meta?.title as string) || '未命名',
+        title: (view.meta?.title as string) || i18n.global.t('route.untitled'),
         path: view.path,
         fullPath: view.fullPath,
         name: view.name as string,

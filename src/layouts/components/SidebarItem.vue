@@ -10,7 +10,7 @@
       <component :is="item.icon" />
     </el-icon>
     <template #title>
-      <span>{{ item.name }}</span>
+      <span>{{ $t(item.name) }}</span>
     </template>
   </el-menu-item>
 
@@ -20,7 +20,7 @@
       <el-icon v-if="item.icon">
         <component :is="item.icon" />
       </el-icon>
-      <span>{{ item.name }}</span>
+      <span>{{ $t(item.name) }}</span>
     </template>
 
     <!-- 递归渲染子菜单 -->

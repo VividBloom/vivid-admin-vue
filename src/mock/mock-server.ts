@@ -32,10 +32,10 @@ const dashboardData = {
   avgConversion: 68.5,
   weeklyVisits: [820, 932, 901, 934, 1290, 1330, 1320],
   userDistribution: [
-    { value: 1048, name: '移动端' },
-    { value: 735, name: 'PC端' },
-    { value: 580, name: '平板端' },
-    { value: 300, name: '其他' },
+    { value: 1048, name: 'Mobile' },
+    { value: 735, name: 'PC' },
+    { value: 580, name: 'Tablet' },
+    { value: 300, name: 'Other' },
   ],
 }
 
@@ -44,7 +44,7 @@ const permissions: API.Permission[] = [
   // 系统管理
   {
     id: 1,
-    name: '系统管理',
+    name: 'route.system',
     code: 'system',
     type: 'menu',
     path: '/system',
@@ -56,7 +56,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 2,
-    name: '用户管理',
+    name: 'route.userList',
     code: 'system:user',
     type: 'menu',
     parentId: 1,
@@ -69,7 +69,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 3,
-    name: '角色管理',
+    name: 'route.roleManagement',
     code: 'system:role',
     type: 'menu',
     parentId: 1,
@@ -82,7 +82,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 4,
-    name: '权限管理',
+    name: 'route.permissionManagement',
     code: 'system:permission',
     type: 'menu',
     parentId: 1,
@@ -96,7 +96,7 @@ const permissions: API.Permission[] = [
   // 仪表盘
   {
     id: 5,
-    name: '仪表盘',
+    name: 'route.dashboard',
     code: 'dashboard',
     type: 'menu',
     path: '/dashboard',
@@ -109,7 +109,7 @@ const permissions: API.Permission[] = [
   // 用户相关权限
   {
     id: 6,
-    name: '用户查看',
+    name: 'User View',
     code: 'user:view',
     type: 'button',
     parentId: 2,
@@ -120,7 +120,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 7,
-    name: '用户创建',
+    name: 'User Create',
     code: 'user:create',
     type: 'button',
     parentId: 2,
@@ -131,7 +131,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 8,
-    name: '用户编辑',
+    name: 'User Edit',
     code: 'user:edit',
     type: 'button',
     parentId: 2,
@@ -142,7 +142,7 @@ const permissions: API.Permission[] = [
   },
   {
     id: 9,
-    name: '用户删除',
+    name: 'User Delete',
     code: 'user:delete',
     type: 'button',
     parentId: 2,
@@ -157,9 +157,9 @@ const permissions: API.Permission[] = [
 const roles: API.Role[] = [
   {
     id: 1,
-    name: '超级管理员',
+    name: 'Super Admin',
     code: 'super_admin',
-    description: '拥有系统所有权限',
+    description: 'Has all system permissions',
     status: 'active',
     permissions: permissions,
     createTime: '2025-01-01 00:00:00',
@@ -167,9 +167,9 @@ const roles: API.Role[] = [
   },
   {
     id: 2,
-    name: '管理员',
+    name: 'Admin',
     code: 'admin',
-    description: '拥有大部分管理权限',
+    description: 'Has most management permissions',
     status: 'active',
     permissions: permissions.filter(p => p.id !== 9), // 排除用户删除权限
     createTime: '2025-01-01 00:00:00',
@@ -177,9 +177,9 @@ const roles: API.Role[] = [
   },
   {
     id: 3,
-    name: '普通用户',
+    name: 'User',
     code: 'user',
-    description: '基本用户权限',
+    description: 'Basic user permissions',
     status: 'active',
     permissions: permissions.filter(p => p.id === 5 || p.id === 6), // 只有仪表盘查看和用户查看权限
     createTime: '2025-01-01 00:00:00',
@@ -197,14 +197,14 @@ const userRoles: API.UserRole[] = [
 const userDirectPermissions: { userId: number; permissionId: number }[] = []
 
 // 2. 工具函数：封装统一响应格式 [5,11](@ref)
-export const resultSuccess = <T = any>(data: T, message = '操作成功') => ({
+export const resultSuccess = <T = any>(data: T, message = 'Operation successful') => ({
   code: 200,
   data,
   message,
   success: true,
 })
 
-export const resultError = (message = '请求失败', code = 500) => ({
+export const resultError = (message = 'Request failed', code = 500) => ({
   code,
   message,
   success: false,
@@ -226,10 +226,10 @@ export const userMocks: MockMethod[] = [
             token: 'mock-jwt-token-' + user.id,
             userInfo: { ...user, password: undefined },
           },
-          '登录成功'
+          'Login successful'
         )
       }
-      return resultError('用户名或密码错误', 401)
+      return resultError('Username or password incorrect', 401)
     },
   },
   {
@@ -239,7 +239,7 @@ export const userMocks: MockMethod[] = [
     response: (req: any) => {
       const token = req.headers.authorization
       if (!token || !token.includes('mock-jwt-token')) {
-        return resultError('未授权', 401)
+        return resultError('Unauthorized', 401)
       }
       // 简单根据token查找用户
       const userId = parseInt(token.split('-').pop() || '1')
@@ -247,13 +247,13 @@ export const userMocks: MockMethod[] = [
       if (user) {
         return resultSuccess({ ...user, password: undefined })
       }
-      return resultError('用户不存在', 404)
+      return resultError('User not found', 404)
     },
   },
   {
     url: '/api/auth/logout',
     method: 'post',
-    response: () => resultSuccess(null, '退出成功'),
+    response: () => resultSuccess(null, 'Logout successful'),
   },
 ]
 
@@ -272,21 +272,21 @@ export const dashboardMocks: MockMethod[] = [
       resultSuccess([
         {
           id: 'ORD001',
-          user: '用户A',
+          user: 'User A',
           amount: 299,
           status: 'success',
           time: '2025-01-17 10:30:00',
         },
         {
           id: 'ORD002',
-          user: '用户B',
+          user: 'User B',
           amount: 159,
           status: 'pending',
           time: '2025-01-17 10:25:00',
         },
         {
           id: 'ORD003',
-          user: '用户C',
+          user: 'User C',
           amount: 899,
           status: 'success',
           time: '2025-01-17 10:20:00',
@@ -304,19 +304,19 @@ export const commonMocks: MockMethod[] = [
       resultSuccess([
         {
           id: 1,
-          name: '仪表盘',
+          name: 'route.dashboard',
           path: '/dashboard',
           icon: 'Odometer',
         },
         {
           id: 2,
-          name: '系统管理',
+          name: 'route.system',
           path: '/system',
           icon: 'Setting',
           children: [
-            { id: 21, name: '用户管理', path: '/system/user', icon: 'User' },
-            { id: 22, name: '角色管理', path: '/system/role', icon: 'UserFilled' },
-            { id: 23, name: '个人资料', path: '/system/profile', icon: 'User' },
+            { id: 21, name: 'route.userList', path: '/system/user', icon: 'User' },
+            { id: 22, name: 'route.roleManagement', path: '/system/role', icon: 'UserFilled' },
+            { id: 23, name: 'route.profile', path: '/system/profile', icon: 'User' },
           ],
         },
       ]),
@@ -415,7 +415,7 @@ export const userManagementMocks: MockMethod[] = [
 
         return resultSuccess(userList[index])
       }
-      return resultError('用户不存在', 404)
+      return resultError('User not found', 404)
     },
   },
   {
@@ -434,9 +434,9 @@ export const userManagementMocks: MockMethod[] = [
         const keepPermissions = userDirectPermissions.filter(up => up.userId !== id)
         userDirectPermissions.length = 0
         userDirectPermissions.push(...keepPermissions)
-        return resultSuccess(null, '删除成功')
+        return resultSuccess(null, 'Delete successful')
       }
-      return resultError('用户不存在', 404)
+      return resultError('User not found', 404)
     },
   },
 ]
@@ -469,7 +469,7 @@ export const permissionMocks: MockMethod[] = [
     response: (req: any) => {
       const token = req.headers.authorization
       if (!token || !token.includes('mock-jwt-token')) {
-        return resultError('未授权', 401)
+        return resultError('Unauthorized', 401)
       }
       const userId = parseInt(token.split('-').pop() || '1')
       const userRoleIds = userRoles.filter(ur => ur.userId === userId).map(ur => ur.roleId)
@@ -512,7 +512,7 @@ export const roleMocks: MockMethod[] = [
       if (role) {
         return resultSuccess(role)
       }
-      return resultError('角色不存在', 404)
+      return resultError('Role not found', 404)
     },
   },
   {
@@ -523,7 +523,7 @@ export const roleMocks: MockMethod[] = [
       if (role) {
         return resultSuccess(role.permissions)
       }
-      return resultError('角色不存在', 404)
+      return resultError('Role not found', 404)
     },
   },
 ]

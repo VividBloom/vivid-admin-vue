@@ -7,27 +7,27 @@
 <template>
   <div class="role-management">
     <div class="page-header">
-      <h2>角色管理</h2>
-      <el-button v-permission="'system:role'" type="primary" @click="showCreateDialog = true">
+      <h2>{{ $t('role.title') }}</h2>
+      <el-button v-permission="'system:role'" type="primary" @click="createRole">
         <el-icon><Plus /></el-icon>
-        新建角色
+        {{ $t('role.new') }}
       </el-button>
     </div>
 
     <el-card class="content-card" shadow="never">
       <el-table v-loading="loading" :data="roles" style="width: 100%">
-        <el-table-column prop="name" label="角色名称" width="150" />
-        <el-table-column prop="code" label="角色编码" width="150" />
-        <el-table-column prop="description" label="描述" min-width="200" />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="name" :label="$t('role.name')" width="150" />
+        <el-table-column prop="code" :label="$t('role.code')" width="150" />
+        <el-table-column prop="description" :label="$t('role.description')" min-width="200" />
+        <el-table-column prop="status" :label="$t('userList.status')" width="100">
           <template #default="scope">
             <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
-              {{ scope.row.status === 'active' ? '启用' : '禁用' }}
+              {{ scope.row.status === 'active' ? $t('userList.enable') : $t('userList.disable') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="createTime" :label="$t('userList.createTime')" width="180" />
+        <el-table-column :label="$t('userList.action')" width="200" fixed="right">
           <template #default="scope">
             <el-button
               v-permission="'system:role'"
@@ -35,7 +35,7 @@
               type="primary"
               @click="editRole(scope.row)"
             >
-              编辑
+              {{ $t('userList.edit') }}
             </el-button>
             <el-button
               v-permission="'system:permission'"
@@ -43,7 +43,7 @@
               type="success"
               @click="assignPermissions(scope.row)"
             >
-              分配权限
+              {{ $t('role.assignPermission') }}
             </el-button>
             <el-button
               v-permission="'system:role'"
@@ -51,7 +51,7 @@
               type="danger"
               @click="deleteRole(scope.row)"
             >
-              删除
+              {{ $t('userList.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -59,34 +59,42 @@
     </el-card>
 
     <!-- 新建/编辑角色对话框 -->
-    <el-dialog v-model="showCreateDialog" :title="isEdit ? '编辑角色' : '新建角色'" width="500px">
+    <el-dialog
+      v-model="showCreateDialog"
+      :title="isEdit ? $t('role.edit') : $t('role.new')"
+      width="500px"
+    >
       <el-form ref="roleFormRef" :model="roleForm" :rules="roleFormRules" label-width="80px">
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="roleForm.name" placeholder="请输入角色名称" />
+        <el-form-item :label="$t('role.name')" prop="name">
+          <el-input v-model="roleForm.name" :placeholder="$t('role.name')" />
         </el-form-item>
-        <el-form-item label="角色编码" prop="code">
-          <el-input v-model="roleForm.code" placeholder="请输入角色编码" />
+        <el-form-item :label="$t('role.code')" prop="code">
+          <el-input v-model="roleForm.code" :placeholder="$t('role.code')" />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="roleForm.description" type="textarea" placeholder="请输入角色描述" />
+        <el-form-item :label="$t('role.description')" prop="description">
+          <el-input
+            v-model="roleForm.description"
+            type="textarea"
+            :placeholder="$t('role.description')"
+          />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('userList.status')" prop="status">
           <el-radio-group v-model="roleForm.status">
-            <el-radio label="active">启用</el-radio>
-            <el-radio label="inactive">禁用</el-radio>
+            <el-radio label="active">{{ $t('userList.enable') }}</el-radio>
+            <el-radio label="inactive">{{ $t('userList.disable') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button @click="showCreateDialog = false">{{ $t('app.cancel') }}</el-button>
         <el-button type="primary" :loading="submitLoading" @click="submitRoleForm">
-          确定
+          {{ $t('app.ok') }}
         </el-button>
       </template>
     </el-dialog>
 
     <!-- 分配权限对话框 -->
-    <el-dialog v-model="showPermissionDialog" title="分配权限" width="800px">
+    <el-dialog v-model="showPermissionDialog" :title="$t('role.assignPermission')" width="800px">
       <el-tree
         ref="permissionTreeRef"
         :data="permissionTree"
@@ -97,9 +105,9 @@
         @check="handlePermissionCheck"
       />
       <template #footer>
-        <el-button @click="showPermissionDialog = false">取消</el-button>
+        <el-button @click="showPermissionDialog = false">{{ $t('app.cancel') }}</el-button>
         <el-button type="primary" :loading="submitLoading" @click="submitPermissionAssignment">
-          确定
+          {{ $t('app.ok') }}
         </el-button>
       </template>
     </el-dialog>
@@ -107,12 +115,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permission'
 import { roleApi } from '@/api'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const permissionStore = usePermissionStore()
 
 // 响应式数据
@@ -133,10 +143,10 @@ const roleForm = reactive({
 })
 
 // 表单验证规则
-const roleFormRules = {
-  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  code: [{ required: true, message: '请输入角色编码', trigger: 'blur' }],
-}
+const roleFormRules = computed(() => ({
+  name: [{ required: true, message: t('role.name'), trigger: 'blur' }],
+  code: [{ required: true, message: t('role.code'), trigger: 'blur' }],
+}))
 
 // 表格数据
 const roles = ref<API.Role[]>([])
@@ -155,7 +165,7 @@ const fetchRoles = async () => {
       roles.value = response.data
     }
   } catch (error: any) {
-    ElMessage.error(error.message || '获取角色列表失败')
+    ElMessage.error(error.message || t('userList.operationFailed'))
   } finally {
     loading.value = false
   }
@@ -167,7 +177,7 @@ const fetchPermissionTree = async () => {
     const response = await permissionStore.fetchPermissionTree()
     permissionTree.value = permissionStore.permissionTree
   } catch (error: any) {
-    ElMessage.error(error.message || '获取权限树失败')
+    ElMessage.error(error.message || t('userList.operationFailed'))
   }
 }
 
@@ -200,17 +210,16 @@ const editRole = (role: API.Role) => {
 // 删除角色
 const deleteRole = async (role: API.Role) => {
   try {
-    await ElMessageBox.confirm(`确定删除角色 "${role.name}" 吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('role.confirmDelete', { name: role.name }), t('app.confirm'), {
+      confirmButtonText: t('app.ok'),
+      cancelButtonText: t('app.cancel'),
       type: 'warning',
     })
-
-    // 这里应该调用删除API
-    ElMessage.success('删除成功')
+    await roleApi.deleteRole(role.id)
+    ElMessage.success(t('role.deleteSuccess'))
     await fetchRoles()
   } catch {
-    // 用户取消删除
+    // User cancelled
   }
 }
 
@@ -233,16 +242,16 @@ const submitRoleForm = async () => {
       if (isEdit.value && currentRole.value) {
         // 编辑角色
         // 这里应该调用更新API
-        ElMessage.success('编辑成功')
+        ElMessage.success(t('role.updateSuccess'))
       } else {
         // 新建角色
         // 这里应该调用创建API
-        ElMessage.success('创建成功')
+        ElMessage.success(t('role.createSuccess'))
       }
       showCreateDialog.value = false
       await fetchRoles()
     } catch (error: any) {
-      ElMessage.error(error.message || '操作失败')
+      ElMessage.error(error.message || t('role.operationFailed'))
     } finally {
       submitLoading.value = false
     }
@@ -262,11 +271,11 @@ const submitPermissionAssignment = async () => {
   submitLoading.value = true
   try {
     // 这里应该调用分配权限API
-    ElMessage.success('权限分配成功')
+    ElMessage.success(t('role.assignSuccess'))
     showPermissionDialog.value = false
     await fetchRoles()
   } catch (error: any) {
-    ElMessage.error(error.message || '权限分配失败')
+    ElMessage.error(error.message || t('role.assignFailed'))
   } finally {
     submitLoading.value = false
   }

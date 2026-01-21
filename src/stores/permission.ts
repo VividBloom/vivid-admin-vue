@@ -7,6 +7,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { permissionApi, roleApi, userRoleApi } from '@/api'
 import { ElMessage } from 'element-plus'
+import i18n from '@/i18n'
 
 export const usePermissionStore = defineStore(
   'permission',
@@ -60,7 +61,7 @@ export const usePermissionStore = defineStore(
           userMenus.value = response.data.menus
         }
       } catch (error: any) {
-        ElMessage.error(error.message || '获取权限信息失败')
+        ElMessage.error(error.message || i18n.global.t('store.fetchPermissionFailed'))
       } finally {
         permissionsLoading.value = false
       }
@@ -74,7 +75,7 @@ export const usePermissionStore = defineStore(
           allPermissions.value = response.data
         }
       } catch (error: any) {
-        ElMessage.error(error.message || '获取权限列表失败')
+        ElMessage.error(error.message || i18n.global.t('store.fetchPermissionListFailed'))
       }
     }
 
@@ -86,7 +87,7 @@ export const usePermissionStore = defineStore(
           permissionTree.value = response.data
         }
       } catch (error: any) {
-        ElMessage.error(error.message || '获取权限树失败')
+        ElMessage.error(error.message || i18n.global.t('store.fetchPermissionTreeFailed'))
       }
     }
 
@@ -98,7 +99,7 @@ export const usePermissionStore = defineStore(
           allRoles.value = response.data
         }
       } catch (error: any) {
-        ElMessage.error(error.message || '获取角色列表失败')
+        ElMessage.error(error.message || i18n.global.t('store.fetchRoleListFailed'))
       }
     }
 
@@ -111,7 +112,7 @@ export const usePermissionStore = defineStore(
         }
         return []
       } catch (error: any) {
-        ElMessage.error(error.message || '获取用户角色失败')
+        ElMessage.error(error.message || i18n.global.t('store.fetchUserRoleFailed'))
         return []
       }
     }

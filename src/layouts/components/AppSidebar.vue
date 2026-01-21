@@ -11,9 +11,11 @@
     :class="{ 'sidebar-collapsed': collapse, 'is-horizontal': mode === 'horizontal' }"
   >
     <!-- Logo 区域 -->
-    <div class="sidebar-logo" @click="$router.push('/')">
+    <div v-if="appStore.settings.showLogo" class="sidebar-logo" @click="$router.push('/')">
       <img src="@/assets/logo.png" alt="logo" class="logo-image" />
-      <span v-show="!collapse && mode !== 'horizontal'" class="logo-text">Vue3 Admin</span>
+      <span v-show="!collapse && mode !== 'horizontal'" class="logo-text">{{
+        $t('app.title')
+      }}</span>
     </div>
     <!-- 菜单区域 -->
     <el-scrollbar class="sidebar-scrollbar" :class="{ 'is-horizontal': mode === 'horizontal' }">
@@ -75,7 +77,7 @@ const activeMenu = computed(() => route.path)
 const menuRoutes = computed(() => {
   const dashboard = {
     id: -1,
-    name: '仪表盘',
+    name: 'route.dashboard',
     path: '/dashboard',
     icon: 'Odometer',
   }

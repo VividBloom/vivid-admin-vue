@@ -21,7 +21,9 @@ import { ref, computed, nextTick, provide, watch, onMounted, onUnmounted } from 
 import { useRoute } from 'vue-router'
 import { useTagsViewsStore } from '@/stores/tagsView'
 import { useScrollRecover } from '@/composables/useScrollRecover'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const tagsViewStore = useTagsViewsStore()
 
@@ -48,7 +50,7 @@ const componentKey = (routeObj: any) => {
 const refreshByKey = async () => {
   const currentPage = route.fullPath
   if (!currentPage) {
-    console.warn('无法获取当前路由路径')
+    console.warn(t('app.cannotGetRoutePath'))
     return
   }
   tagsViewStore.markViewForRefresh(currentPage)

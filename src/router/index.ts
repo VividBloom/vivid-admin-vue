@@ -9,6 +9,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user' // 使用 Pinia 管理用户认证信息
 import { useTagsViewsStore } from '@/stores/tagsView' // 管理标签页（TagsView）的状态
 import { useAppStore } from '@/stores/app' // 应用状态（例如页面重载）
+import i18n from '@/i18n'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -17,7 +18,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/Login.vue'),
     meta: {
       requiresAuth: false,
-      title: '登录',
+      title: 'route.login',
     },
   },
   {
@@ -34,7 +35,7 @@ const routes: RouteRecordRaw[] = [
         name: 'Dashboard',
         component: () => import('@/pages/Dashboard.vue'),
         meta: {
-          title: '仪表盘',
+          title: 'route.dashboard',
           icon: 'Odometer',
           affix: true, // 关键：设置为固定标签，不能关闭
           keepAlive: true,
@@ -44,38 +45,44 @@ const routes: RouteRecordRaw[] = [
         path: 'system',
         name: 'System',
         redirect: '/system/user',
-        meta: { title: '系统管理', icon: 'Setting' },
+        meta: { title: 'route.system', icon: 'Setting' },
         children: [
           {
             path: 'user',
             name: 'UserList',
             component: () => import('@/pages/system/UserList.vue'),
-            meta: { title: '用户列表', keepAlive: true },
+            meta: { title: 'route.userList', keepAlive: true },
           },
           {
             path: 'user/:id',
             name: 'UserDetail',
             component: () => import('@/pages/system/UserDetail.vue'),
-            meta: { title: '用户详情' },
-            props: true, // 可以将路由参数 :id 作为 props 传递给组件[3,5](@ref)
+            meta: { title: 'route.userDetail', parent: 'UserList' },
+            props: true, // 可以将路由参数 :id 作为 props 传递给组件
           },
           {
             path: 'role',
             name: 'RoleManagement',
             component: () => import('@/pages/system/RoleManagement.vue'),
-            meta: { title: '角色管理', keepAlive: true },
+            meta: { title: 'route.roleManagement', keepAlive: true },
           },
           {
             path: 'permission',
             name: 'PermissionManagement',
             component: () => import('@/pages/system/PermissionManagement.vue'),
-            meta: { title: '权限管理', keepAlive: true },
+            meta: { title: 'route.permissionManagement', keepAlive: true },
           },
           {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),
-            meta: { title: '个人资料', keepAlive: true },
+            meta: { title: 'route.profile', keepAlive: true },
+          },
+          {
+            path: 'password',
+            name: 'ChangePassword',
+            component: () => import('@/pages/system/ChangePassword.vue'),
+            meta: { title: 'route.changePassword' },
           },
         ],
       },
@@ -85,7 +92,7 @@ const routes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/pages/NotFound.vue'),
-    meta: { title: '页面未找到' },
+    meta: { title: 'route.notFound' },
   },
 ]
 
@@ -99,7 +106,9 @@ router.beforeEach((to, from, next) => {
   const tagsViewStore = useTagsViewsStore()
   // 设置页面标题
   // 根据路由元信息动态设置页面 title，便于用户和浏览器历史记录识别
-  document.title = `${to.meta.title || 'Vue Admin'}`
+  const titleKey = to.meta.title || 'app.title'
+  document.title = i18n.global.t(titleKey as string)
+
   if (to.meta?.noTagsView !== true) {
     tagsViewStore.addView(to)
   }

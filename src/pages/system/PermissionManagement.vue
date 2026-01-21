@@ -8,10 +8,10 @@
   <div class="permission-management">
     <!-- 页面头部：标题 + 新建按钮 -->
     <div class="page-header">
-      <h2>权限管理</h2>
+      <h2>{{ $t('permission.title') }}</h2>
       <el-button v-permission="'system:permission'" type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
-        新建权限
+        {{ $t('permission.new') }}
       </el-button>
     </div>
 
@@ -21,9 +21,9 @@
         <el-card class="content-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span>权限树</span>
+              <span>{{ $t('permission.tree') }}</span>
               <el-button size="small" type="primary" link @click="reloadPermissions">
-                <el-icon><Refresh /></el-icon>刷新
+                <el-icon><Refresh /></el-icon>{{ $t('tagsView.refresh') }}
               </el-button>
             </div>
           </template>
@@ -44,65 +44,69 @@
         <el-card class="content-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span>权限列表</span>
+              <span>{{ $t('permission.list') }}</span>
               <div class="card-actions">
                 <el-select
                   v-model="filter.type"
-                  placeholder="类型"
+                  :placeholder="$t('permission.type')"
                   size="small"
                   style="width: 120px"
                 >
-                  <el-option label="全部" value="" />
-                  <el-option label="菜单" value="menu" />
-                  <el-option label="按钮" value="button" />
-                  <el-option label="接口" value="api" />
+                  <el-option :label="$t('permission.all')" value="" />
+                  <el-option :label="$t('permission.menu')" value="menu" />
+                  <el-option :label="$t('permission.button')" value="button" />
+                  <el-option :label="$t('permission.api')" value="api" />
                 </el-select>
                 <el-select
                   v-model="filter.status"
-                  placeholder="状态"
+                  :placeholder="$t('userList.status')"
                   size="small"
                   style="width: 120px"
                 >
-                  <el-option label="全部" value="" />
-                  <el-option label="启用" value="active" />
-                  <el-option label="禁用" value="inactive" />
+                  <el-option :label="$t('permission.all')" value="" />
+                  <el-option :label="$t('userList.enable')" value="active" />
+                  <el-option :label="$t('userList.disable')" value="inactive" />
                 </el-select>
                 <el-input
                   v-model="filter.keyword"
-                  placeholder="名称/编码"
+                  :placeholder="$t('permission.keyword')"
                   size="small"
                   clearable
                   style="width: 180px"
                   @keyup.enter="applyFilter"
                 />
-                <el-button size="small" type="primary" @click="applyFilter">查询</el-button>
-                <el-button size="small" @click="resetFilter">重置</el-button>
+                <el-button size="small" type="primary" @click="applyFilter">
+                  {{ $t('app.confirm') }}
+                </el-button>
+                <el-button size="small" @click="resetFilter">{{ $t('app.reset') }}</el-button>
               </div>
             </div>
           </template>
 
           <el-table v-loading="listLoading" :data="filteredPermissions" style="width: 100%">
-            <el-table-column prop="name" label="名称" min-width="140" />
-            <el-table-column prop="code" label="编码" min-width="140" />
-            <el-table-column prop="type" label="类型" width="100">
+            <el-table-column prop="name" :label="$t('permission.name')" min-width="140" />
+            <el-table-column prop="code" :label="$t('permission.code')" min-width="140" />
+            <el-table-column prop="type" :label="$t('permission.type')" width="100">
               <template #default="scope">
                 <el-tag :type="typeTagType(scope.row.type)">
                   {{ typeLabel(scope.row.type) }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="path" label="路径" min-width="160" />
-            <el-table-column prop="parentId" label="父级ID" width="90" />
-            <el-table-column prop="sort" label="排序" width="80" />
-            <el-table-column prop="status" label="状态" width="100">
+            <el-table-column prop="path" :label="$t('permission.path')" min-width="160" />
+            <el-table-column prop="parentId" :label="$t('permission.parentId')" width="90" />
+            <el-table-column prop="sort" :label="$t('permission.sort')" width="80" />
+            <el-table-column prop="status" :label="$t('userList.status')" width="100">
               <template #default="scope">
                 <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
-                  {{ scope.row.status === 'active' ? '启用' : '禁用' }}
+                  {{
+                    scope.row.status === 'active' ? $t('userList.enable') : $t('userList.disable')
+                  }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" width="180" />
-            <el-table-column label="操作" width="200" fixed="right">
+            <el-table-column prop="createTime" :label="$t('userList.createTime')" width="180" />
+            <el-table-column :label="$t('userList.action')" width="200" fixed="right">
               <template #default="scope">
                 <el-button
                   v-permission="'system:permission'"
@@ -110,7 +114,7 @@
                   type="primary"
                   @click="editPermission(scope.row)"
                 >
-                  编辑
+                  {{ $t('userList.edit') }}
                 </el-button>
                 <el-button
                   v-permission="'system:permission'"
@@ -118,7 +122,7 @@
                   type="danger"
                   @click="deletePermission(scope.row)"
                 >
-                  删除
+                  {{ $t('userList.delete') }}
                 </el-button>
               </template>
             </el-table-column>
@@ -128,51 +132,57 @@
     </el-row>
 
     <!-- 新建/编辑权限对话框 -->
-    <el-dialog v-model="showDialog" :title="isEdit ? '编辑权限' : '新建权限'" width="600px">
+    <el-dialog
+      v-model="showDialog"
+      :title="isEdit ? $t('userList.editUser') : $t('permission.new')"
+      width="600px"
+    >
       <el-form ref="formRef" :model="form" :rules="formRules" label-width="90px">
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入权限名称" />
+        <el-form-item :label="$t('permission.name')" prop="name">
+          <el-input v-model="form.name" :placeholder="$t('permission.enterName')" />
         </el-form-item>
-        <el-form-item label="编码" prop="code">
-          <el-input v-model="form.code" placeholder="请输入权限编码（唯一）" />
+        <el-form-item :label="$t('permission.code')" prop="code">
+          <el-input v-model="form.code" :placeholder="$t('permission.enterCode')" />
         </el-form-item>
-        <el-form-item label="类型" prop="type">
+        <el-form-item :label="$t('permission.type')" prop="type">
           <el-radio-group v-model="form.type">
-            <el-radio label="menu">菜单</el-radio>
-            <el-radio label="button">按钮</el-radio>
-            <el-radio label="api">接口</el-radio>
+            <el-radio label="menu">{{ $t('permission.menu') }}</el-radio>
+            <el-radio label="button">{{ $t('permission.button') }}</el-radio>
+            <el-radio label="api">{{ $t('permission.api') }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="父级权限" prop="parentId">
+        <el-form-item :label="$t('permission.parent')" prop="parentId">
           <el-tree-select
             v-model="form.parentId"
             :data="permissionTree"
             :props="{ label: 'name', children: 'children' }"
-            placeholder="请选择父级（可选）"
+            :placeholder="$t('permission.selectParent')"
             clearable
             check-strictly
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="路径" prop="path">
-          <el-input v-model="form.path" placeholder="菜单路由/接口地址（根据类型填写）" />
+        <el-form-item :label="$t('permission.path')" prop="path">
+          <el-input v-model="form.path" :placeholder="$t('permission.enterPath')" />
         </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <el-input v-model="form.icon" placeholder="菜单图标（仅菜单类型可用）" />
+        <el-form-item :label="$t('permission.icon')" prop="icon">
+          <el-input v-model="form.icon" :placeholder="$t('permission.enterIcon')" />
         </el-form-item>
-        <el-form-item label="排序" prop="sort">
+        <el-form-item :label="$t('permission.sort')" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('userList.status')" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="active">启用</el-radio>
-            <el-radio label="inactive">禁用</el-radio>
+            <el-radio label="active">{{ $t('userList.enable') }}</el-radio>
+            <el-radio label="inactive">{{ $t('userList.disable') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showDialog = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="submitForm">确定</el-button>
+        <el-button @click="showDialog = false">{{ $t('app.cancel') }}</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="submitForm">
+          {{ $t('app.ok') }}
+        </el-button>
       </template>
     </el-dialog>
   </div>
@@ -184,8 +194,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permission'
 import { permissionApi } from '@/api'
+import { useI18n } from 'vue-i18n'
 
-// Store：统一管理权限数据
+const { t } = useI18n()
 const permissionStore = usePermissionStore()
 
 // 加载状态
@@ -219,11 +230,11 @@ const form = reactive({
 })
 
 // 表单校验规则
-const formRules = {
-  name: [{ required: true, message: '请输入权限名称', trigger: 'blur' }],
-  code: [{ required: true, message: '请输入权限编码', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择权限类型', trigger: 'change' }],
-}
+const formRules = computed(() => ({
+  name: [{ required: true, message: t('permission.enterName'), trigger: 'blur' }],
+  code: [{ required: true, message: t('permission.enterCode'), trigger: 'blur' }],
+  type: [{ required: true, message: t('permission.type'), trigger: 'change' }],
+}))
 
 // 基础数据源
 const permissionTree = computed(() => permissionStore.permissionTree)
@@ -243,8 +254,14 @@ const filteredPermissions = computed(() => {
 })
 
 // 类型显示
-const typeLabel = (t: 'menu' | 'button' | 'api') =>
-  t === 'menu' ? '菜单' : t === 'button' ? '按钮' : '接口'
+const typeLabel = (type: 'menu' | 'button' | 'api') => {
+  const map: Record<string, string> = {
+    menu: t('permission.menu'),
+    button: t('permission.button'),
+    api: t('permission.api'),
+  }
+  return map[type] || type
+}
 const typeTagType = (t: 'menu' | 'button' | 'api') =>
   t === 'menu' ? 'info' : t === 'button' ? 'warning' : 'success'
 
@@ -260,9 +277,9 @@ const reloadPermissions = async () => {
       permissionStore.fetchPermissionTree(),
       permissionStore.fetchAllPermissions(),
     ])
-    ElMessage.success('权限数据已刷新')
+    ElMessage.success(t('permission.refreshSuccess'))
   } catch (error: any) {
-    ElMessage.error(error.message || '刷新失败')
+    ElMessage.error(error.message || t('app.refreshFailed'))
   } finally {
     treeLoading.value = false
     listLoading.value = false
@@ -306,16 +323,16 @@ const editPermission = (p: API.Permission) => {
 // 删除权限
 const deletePermission = async (p: API.Permission) => {
   try {
-    await ElMessageBox.confirm(`确定删除权限 "${p.name}" 吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('permission.confirmDelete', { name: p.name }), t('app.confirm'), {
+      confirmButtonText: t('app.ok'),
+      cancelButtonText: t('app.cancel'),
       type: 'warning',
     })
-    await permissionApi.deletePermission(p.id)
-    ElMessage.success('删除成功')
+    await permissionApi.deletePermission(p.id!)
+    ElMessage.success(t('userList.deleteSuccess'))
     await reloadPermissions()
   } catch {
-    // 用户取消或失败
+    // User cancelled
   }
 }
 
@@ -337,7 +354,7 @@ const submitForm = async () => {
           sort: form.sort,
           status: form.status,
         })
-        ElMessage.success('编辑成功')
+        ElMessage.success(t('userList.updateSuccess'))
       } else {
         await permissionApi.createPermission({
           name: form.name,
@@ -349,12 +366,12 @@ const submitForm = async () => {
           sort: form.sort,
           status: form.status,
         } as any)
-        ElMessage.success('创建成功')
+        ElMessage.success(t('userList.createSuccess'))
       }
       showDialog.value = false
       await reloadPermissions()
     } catch (error: any) {
-      ElMessage.error(error.message || '操作失败')
+      ElMessage.error(error.message || t('userList.operationFailed'))
     } finally {
       submitLoading.value = false
     }
@@ -409,5 +426,3 @@ onMounted(async () => {
   margin-top: 0;
 }
 </style>
-
-align-items: center;

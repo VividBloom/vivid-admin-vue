@@ -8,20 +8,20 @@
   <div ref="scrollContainerRef" class="min-h-[calc(100vh-84px)] p-0">
     <!-- 页面标题和快捷操作 -->
     <div :key="componentKey" class="mb-5 flex items-center justify-between">
-      <h1 class="m-0 text-2xl font-semibold">仪表盘</h1>
+      <h1 class="m-0 text-2xl font-semibold">{{ $t('dashboard.title') }}</h1>
       <div class="flex items-center gap-3">
         <el-button type="primary" @click="refreshData">
           <el-icon>
             <Refresh />
           </el-icon>
-          刷新数据
+          {{ $t('dashboard.refreshData') }}
         </el-button>
         <el-date-picker
           v-model="dateRange"
           type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+          range-separator="-"
+          :start-placeholder="$t('dashboard.startDate')"
+          :end-placeholder="$t('dashboard.endDate')"
           @change="handleDateChange"
         />
       </div>
@@ -36,7 +36,7 @@
               <div class="mb-2 text-3xl font-semibold leading-none">
                 {{ dashboardData?.totalUsers }}
               </div>
-              <div class="text-sm text-gray-400">总用户数</div>
+              <div class="text-sm text-gray-400">{{ $t('dashboard.totalUsers') }}</div>
             </div>
             <div class="opacity-80">
               <el-icon color="#409EFF" :size="48">
@@ -45,7 +45,7 @@
             </div>
           </div>
           <div class="text-xs">
-            <span class="text-green-500">↑ 12% 较上月</span>
+            <span class="text-green-500">↑ 12% {{ $t('dashboard.compareLastMonth') }}</span>
           </div>
         </el-card>
       </el-col>
@@ -57,7 +57,7 @@
               <div class="mb-2 text-3xl font-semibold leading-none">
                 {{ dashboardData?.totalOrders }}
               </div>
-              <div class="text-sm text-gray-400">总订单数</div>
+              <div class="text-sm text-gray-400">{{ $t('dashboard.totalOrders') }}</div>
             </div>
             <div class="opacity-80">
               <el-icon color="#67C23A" :size="48">
@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="text-xs">
-            <span class="text-green-500">↑ 8% 较上月</span>
+            <span class="text-green-500">↑ 8% {{ $t('dashboard.compareLastMonth') }}</span>
           </div>
         </el-card>
       </el-col>
@@ -78,7 +78,7 @@
               <div class="mb-2 text-3xl font-semibold leading-none">
                 ¥{{ dashboardData?.totalRevenue }}
               </div>
-              <div class="text-sm text-gray-400">总收入</div>
+              <div class="text-sm text-gray-400">{{ $t('dashboard.totalRevenue') }}</div>
             </div>
             <div class="opacity-80">
               <el-icon color="#E6A23C" :size="48">
@@ -87,7 +87,7 @@
             </div>
           </div>
           <div class="text-xs">
-            <span class="text-green-500">↑ 15% 较上月</span>
+            <span class="text-green-500">↑ 15% {{ $t('dashboard.compareLastMonth') }}</span>
           </div>
         </el-card>
       </el-col>
@@ -99,7 +99,7 @@
               <div class="mb-2 text-3xl font-semibold leading-none">
                 {{ dashboardData?.avgConversion }}%
               </div>
-              <div class="text-sm text-gray-400">转化率</div>
+              <div class="text-sm text-gray-400">{{ $t('dashboard.conversionRate') }}</div>
             </div>
             <div class="opacity-80">
               <el-icon color="#F56C6C" :size="48">
@@ -108,7 +108,7 @@
             </div>
           </div>
           <div class="text-xs">
-            <span class="text-red-400">↓ 2% 较上月</span>
+            <span class="text-red-400">↓ 2% {{ $t('dashboard.compareLastMonth') }}</span>
           </div>
         </el-card>
       </el-col>
@@ -122,11 +122,17 @@
         <el-card class="mb-4" shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-base font-semibold">访问量趋势</span>
+              <span class="text-base font-semibold">{{ $t('dashboard.visitsTrend') }}</span>
               <el-radio-group v-model="visitChartType" size="small">
-                <el-radio-button label="week" value="week">本周</el-radio-button>
-                <el-radio-button label="month" value="month">本月</el-radio-button>
-                <el-radio-button label="quarter" value="quarter">本季</el-radio-button>
+                <el-radio-button label="week" value="week">{{
+                  $t('dashboard.week')
+                }}</el-radio-button>
+                <el-radio-button label="month" value="month">{{
+                  $t('dashboard.month')
+                }}</el-radio-button>
+                <el-radio-button label="quarter" value="quarter">{{
+                  $t('dashboard.quarter')
+                }}</el-radio-button>
               </el-radio-group>
             </div>
           </template>
@@ -137,7 +143,9 @@
         <el-card class="mb-4 lg:mb-0" shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-base font-semibold">实时交易</span>
+              <span class="text-base font-semibold">{{
+                $t('dashboard.realTimeTransactions')
+              }}</span>
               <el-button type="primary" link @click="loadRealTimeData">
                 <el-icon>
                   <Refresh />
@@ -146,19 +154,19 @@
             </div>
           </template>
           <el-table v-loading="tableLoading" :data="realtimeTransactions" height="300">
-            <el-table-column prop="id" label="订单号" width="120" />
-            <el-table-column prop="user" label="用户" width="100" />
-            <el-table-column prop="amount" label="金额" width="100">
+            <el-table-column prop="id" :label="$t('dashboard.orderNo')" width="120" />
+            <el-table-column prop="user" :label="$t('dashboard.user')" width="100" />
+            <el-table-column prop="amount" :label="$t('dashboard.amount')" width="100">
               <template #default="scope"> ¥{{ scope.row.amount }} </template>
             </el-table-column>
-            <el-table-column prop="status" label="状态" width="100">
+            <el-table-column prop="status" :label="$t('dashboard.status')" width="100">
               <template #default="scope">
                 <el-tag :type="getStatusType(scope.row.status)">
                   {{ scope.row.status }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="time" label="时间" />
+            <el-table-column prop="time" :label="$t('dashboard.time')" />
           </el-table>
         </el-card>
       </el-col>
@@ -169,7 +177,7 @@
         <el-card class="mb-4" shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-base font-semibold">用户分布</span>
+              <span class="text-base font-semibold">{{ $t('dashboard.userDistribution') }}</span>
             </div>
           </template>
           <div ref="userChart" class="h-[300px] w-full"></div>
@@ -179,7 +187,7 @@
         <el-card shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-base font-semibold">系统性能</span>
+              <span class="text-base font-semibold">{{ $t('dashboard.systemPerformance') }}</span>
             </div>
           </template>
           <div ref="gaugeChart" class="h-[300px] w-full"></div>
@@ -194,6 +202,7 @@ import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 import { systemApi } from '@/api'
 import { useComponentRefresh } from '@/composables/useComponentRefresh'
@@ -213,6 +222,7 @@ interface Transaction {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 
 // 使用组件刷新 Hook：提供给父组件通过 expose 调用的本地刷新逻辑
 const { refreshComponent } = useComponentRefresh()
@@ -244,9 +254,9 @@ const fetchData = async () => {
     loading.value = true
     const response = await systemApi.getDashboard()
     dashboardData.value = response.data
-    ElMessage.success('数据获取成功')
+    ElMessage.success(t('dashboard.dataFetchSuccess'))
   } catch (error) {
-    ElMessage.error('数据获取失败')
+    ElMessage.error(t('dashboard.dataFetchFailed'))
   } finally {
     loading.value = false
   }
@@ -279,9 +289,9 @@ const refreshData = async () => {
       avgConversion: 68.5,
     }
 
-    ElMessage.success('数据刷新成功')
+    ElMessage.success(t('dashboard.dataRefreshSuccess'))
   } catch (error) {
-    ElMessage.error('数据刷新失败')
+    ElMessage.error(t('dashboard.dataRefreshFailed'))
   }
 }
 
@@ -292,14 +302,72 @@ const loadRealTimeData = async () => {
     await new Promise(resolve => setTimeout(resolve, 800))
 
     realtimeTransactions.value = [
-      { id: 'ORD001', user: '用户A', amount: 299, status: 'success', time: '2025-01-17 10:30:00' },
-      { id: 'ORD002', user: '用户B', amount: 159, status: 'pending', time: '2025-01-17 10:25:00' },
-      { id: 'ORD003', user: '用户C', amount: 899, status: 'success', time: '2025-01-17 10:20:00' },
-      { id: 'ORD004', user: '用户D', amount: 199, status: 'failed', time: '2025-01-17 10:15:00' },
-      { id: 'ORD005', user: '用户E', amount: 599, status: 'success', time: '2025-01-17 10:10:00' },
+      {
+        id: 'ORD001',
+        user: `${t('dashboard.user')} A`,
+        amount: 299,
+        status: 'success',
+        time: '2025-01-17 10:30:00',
+      },
+      {
+        id: 'ORD002',
+        user: `${t('dashboard.user')} B`,
+        amount: 159,
+        status: 'pending',
+        time: '2025-01-17 10:25:00',
+      },
+      {
+        id: 'ORD003',
+        user: `${t('dashboard.user')} C`,
+        amount: 899,
+        status: 'success',
+        time: '2025-01-17 10:20:00',
+      },
+      {
+        id: 'ORD004',
+        user: `${t('dashboard.user')} D`,
+        amount: 199,
+        status: 'failed',
+        time: '2025-01-17 10:15:00',
+      },
+      {
+        id: 'ORD005',
+        user: `${t('dashboard.user')} E`,
+        amount: 599,
+        status: 'success',
+        time: '2025-01-17 10:10:00',
+      },
+      {
+        id: 'ORD002',
+        user: `${t('dashboard.user')} B`,
+        amount: 159,
+        status: 'pending',
+        time: '2025-01-17 10:25:00',
+      },
+      {
+        id: 'ORD003',
+        user: `${t('dashboard.user')} C`,
+        amount: 899,
+        status: 'success',
+        time: '2025-01-17 10:20:00',
+      },
+      {
+        id: 'ORD004',
+        user: `${t('dashboard.user')} D`,
+        amount: 199,
+        status: 'failed',
+        time: '2025-01-17 10:15:00',
+      },
+      {
+        id: 'ORD005',
+        user: `${t('dashboard.user')} E`,
+        amount: 599,
+        status: 'success',
+        time: '2025-01-17 10:10:00',
+      },
     ]
   } catch (error) {
-    ElMessage.error('加载实时数据失败')
+    ElMessage.error(t('dashboard.realTimeDataLoadError'))
   } finally {
     tableLoading.value = false
   }
@@ -312,6 +380,15 @@ const getStatusType = (status: string): any => {
     failed: 'danger',
   }
   return map[status] || 'info'
+}
+
+const getStatusText = (status: string): string => {
+  const map: { [key: string]: string } = {
+    success: 'dashboard.statusSuccess',
+    pending: 'dashboard.statusPending',
+    failed: 'dashboard.statusFailed',
+  }
+  return t(map[status] || 'dashboard.status')
 }
 
 const handleDateChange = () => {
@@ -329,7 +406,15 @@ const initCharts = () => {
       },
       xAxis: {
         type: 'category',
-        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+        data: [
+          t('dashboard.jan'),
+          t('dashboard.feb'),
+          t('dashboard.mar'),
+          t('dashboard.apr'),
+          t('dashboard.may'),
+          t('dashboard.jun'),
+          t('dashboard.jul'),
+        ],
       },
       yAxis: {
         type: 'value',
@@ -365,7 +450,7 @@ const initCharts = () => {
       },
       series: [
         {
-          name: '用户分布',
+          name: t('dashboard.userDistribution'),
           type: 'pie',
           radius: ['40%', '70%'],
           avoidLabelOverlap: false,
@@ -385,10 +470,10 @@ const initCharts = () => {
             },
           },
           data: [
-            { value: 1048, name: '移动端' },
-            { value: 735, name: 'PC端' },
-            { value: 580, name: '平板端' },
-            { value: 300, name: '其他' },
+            { value: 1048, name: t('dashboard.mobile') },
+            { value: 735, name: t('dashboard.pc') },
+            { value: 580, name: t('dashboard.tablet') },
+            { value: 300, name: t('dashboard.other') },
           ],
         },
       ],
@@ -426,7 +511,7 @@ const initCharts = () => {
             offsetCenter: [0, '-25%'],
             formatter: '{value}%',
           },
-          data: [{ value: 75, name: '性能指标' }],
+          data: [{ value: 75, name: t('dashboard.performanceIndex') }],
         },
       ],
     }
@@ -458,7 +543,7 @@ const loadDashboardData = async () => {
     // console.log('仪表板数据加载完成')
   } catch (error) {
     console.error('加载仪表板数据失败:', error)
-    ElMessage.error('数据加载失败')
+    ElMessage.error(t('dashboard.dataLoadError'))
   } finally {
     loading.value = false
   }

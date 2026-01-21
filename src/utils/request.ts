@@ -11,6 +11,7 @@ import axios, {
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 import { useUserStore } from '@/stores/user'
+import i18n from '@/i18n'
 
 // 定义响应数据类型，后端返回数据应符合此结构
 export interface ResponseData<T = any> {
@@ -53,7 +54,7 @@ class Request {
         }
 
         // 业务错误处理
-        ElMessage.error(data.message || '请求失败')
+        ElMessage.error(data.message || i18n.global.t('http.error'))
         return Promise.reject(new Error(data.message || 'Error'))
       },
       error => {
@@ -65,31 +66,32 @@ class Request {
   }
 
   private handleHttpError(error: any): void {
-    let message = '请求失败'
+    const t = i18n.global.t
+    let message = t('http.error')
 
     if (error.response) {
       switch (error.response.status) {
         case 400:
-          message = '请求参数错误'
+          message = t('http.badRequest')
           break
         case 401:
-          message = '登录已过期，请重新登录'
+          message = t('http.unauthorized')
           this.handleUnauthorized()
           break
         case 403:
-          message = '没有权限访问该资源'
+          message = t('http.forbidden')
           break
         case 404:
-          message = '请求资源不存在'
+          message = t('http.notFound')
           break
         case 500:
-          message = '服务器内部错误'
+          message = t('http.serverError')
           break
         default:
-          message = `网络错误: ${error.response.status}`
+          message = `${t('http.error')}: ${error.response.status}`
       }
     } else if (error.request) {
-      message = '网络连接失败，请检查网络'
+      message = t('http.networkError')
     } else {
       message = error.message
     }
@@ -99,9 +101,10 @@ class Request {
 
   private handleUnauthorized(): void {
     const userStore = useUserStore()
-    ElMessageBox.confirm('登录已过期，请重新登录', '提示', {
-      confirmButtonText: '重新登录',
-      cancelButtonText: '取消',
+    const t = i18n.global.t
+    ElMessageBox.confirm(t('http.unauthorized'), t('http.hint'), {
+      confirmButtonText: t('http.relogin'),
+      cancelButtonText: t('http.cancel'),
       type: 'warning',
     }).then(() => {
       userStore.logout()

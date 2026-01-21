@@ -6,35 +6,35 @@
 <template>
   <div class="user-management">
     <div class="page-header">
-      <h2>用户管理</h2>
-      <el-button v-permission="'system:user'" type="primary" @click="showCreateDialog = true">
+      <h2>{{ $t('userList.title') }}</h2>
+      <el-button v-permission="'system:user'" type="primary" @click="handleCreate">
         <el-icon><Plus /></el-icon>
-        新建用户
+        {{ $t('userList.newUser') }}
       </el-button>
     </div>
 
     <el-card class="content-card" shadow="never">
       <el-table v-loading="loading" :data="userList" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="用户名" width="120" />
-        <el-table-column prop="email" label="邮箱" min-width="200" />
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column prop="role" label="角色" width="150">
+        <el-table-column prop="id" :label="$t('userList.id')" width="80" />
+        <el-table-column prop="username" :label="$t('userList.username')" width="120" />
+        <el-table-column prop="email" :label="$t('userList.email')" min-width="200" />
+        <el-table-column prop="phone" :label="$t('userList.phone')" width="130" />
+        <el-table-column prop="role" :label="$t('userList.role')" width="150">
           <template #default="scope">
             <el-tag v-for="role in scope.row.roles" :key="role.id" size="small" class="mr-1">
               {{ role.name }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" :label="$t('userList.status')" width="100">
           <template #default="scope">
             <el-tag :type="scope.row.status === 'active' ? 'success' : 'danger'">
-              {{ scope.row.status === 'active' ? '启用' : '禁用' }}
+              {{ scope.row.status === 'active' ? $t('userList.enable') : $t('userList.disable') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="createTime" :label="$t('userList.createTime')" width="180" />
+        <el-table-column :label="$t('userList.action')" width="200" fixed="right">
           <template #default="scope">
             <el-button
               v-permission="'system:user'"
@@ -42,7 +42,7 @@
               type="primary"
               @click="editUser(scope.row)"
             >
-              编辑
+              {{ $t('userList.editUser') }}
             </el-button>
             <el-button
               v-permission="'system:user'"
@@ -50,7 +50,7 @@
               type="success"
               @click="viewDetail(scope.row.id)"
             >
-              详情
+              {{ $t('userList.detail') }}
             </el-button>
             <el-button
               v-permission="'system:user'"
@@ -58,7 +58,7 @@
               type="danger"
               @click="deleteUser(scope.row)"
             >
-              删除
+              {{ $t('userList.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -66,19 +66,23 @@
     </el-card>
 
     <!-- 新建/编辑用户对话框 -->
-    <el-dialog v-model="showCreateDialog" :title="isEdit ? '编辑用户' : '新建用户'" width="500px">
+    <el-dialog
+      v-model="showCreateDialog"
+      :title="isEdit ? $t('userList.editUser') : $t('userList.newUser')"
+      width="500px"
+    >
       <el-form ref="userFormRef" :model="userForm" :rules="userFormRules" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userForm.username" placeholder="请输入用户名" />
+        <el-form-item :label="$t('userList.username')" prop="username">
+          <el-input v-model="userForm.username" :placeholder="$t('login.usernamePlaceholder')" />
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email" placeholder="请输入邮箱" />
+        <el-form-item :label="$t('userList.email')" prop="email">
+          <el-input v-model="userForm.email" :placeholder="$t('profile.enterEmail')" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="userForm.phone" placeholder="请输入手机号" />
+        <el-form-item :label="$t('userList.phone')" prop="phone">
+          <el-input v-model="userForm.phone" :placeholder="$t('profile.enterPhone')" />
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="userForm.roleIds" multiple placeholder="请选择角色">
+        <el-form-item :label="$t('userList.role')" prop="roleIds">
+          <el-select v-model="userForm.roleIds" multiple :placeholder="$t('userList.selectRole')">
             <el-option
               v-for="role in roleList"
               :key="role.id"
@@ -87,7 +91,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="权限">
+        <el-form-item :label="$t('userList.permission')">
           <el-tree
             ref="permissionTreeRef"
             :data="permissionTree"
@@ -98,17 +102,17 @@
             @check="handlePermissionCheck"
           />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="$t('userList.status')" prop="status">
           <el-radio-group v-model="userForm.status">
-            <el-radio label="active">启用</el-radio>
-            <el-radio label="inactive">禁用</el-radio>
+            <el-radio label="active">{{ $t('userList.enable') }}</el-radio>
+            <el-radio label="inactive">{{ $t('userList.disable') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button @click="showCreateDialog = false">{{ $t('app.cancel') }}</el-button>
         <el-button type="primary" :loading="submitLoading" @click="submitUserForm">
-          确定
+          {{ $t('app.ok') }}
         </el-button>
       </template>
     </el-dialog>
@@ -116,12 +120,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { roleApi, permissionApi, userApi } from '@/api'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // 响应式数据
@@ -147,11 +153,11 @@ const userForm = reactive({
 })
 
 // 表单验证规则
-const userFormRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-  roleIds: [{ required: true, message: '请选择角色', trigger: 'change' }],
-}
+const userFormRules = computed(() => ({
+  username: [{ required: true, message: t('login.usernamePlaceholder'), trigger: 'blur' }],
+  email: [{ required: true, message: t('profile.enterEmail'), trigger: 'blur' }],
+  roleIds: [{ required: true, message: t('userList.selectRole'), trigger: 'change' }],
+}))
 
 // 表格数据
 const userList = ref<any[]>([])
@@ -181,7 +187,7 @@ const loadUserList = async () => {
         roles: [
           {
             id: 1,
-            name: '管理员',
+            name: 'Admin',
             code: 'admin',
             status: 'active',
             permissions: [],
@@ -191,7 +197,7 @@ const loadUserList = async () => {
 
           {
             id: 1,
-            name: '管理员',
+            name: 'Admin',
             code: 'admin',
             status: 'active',
             permissions: [],
@@ -222,7 +228,7 @@ const fetchRoles = async () => {
     roleList.value = [
       {
         id: 1,
-        name: '管理员',
+        name: t('role.admin'),
         code: 'admin',
         status: 'active',
         permissions: [],
@@ -231,7 +237,7 @@ const fetchRoles = async () => {
       },
       {
         id: 2,
-        name: '普通用户',
+        name: t('role.commonUser'),
         code: 'user',
         status: 'active',
         permissions: [],
@@ -255,7 +261,7 @@ const fetchPermissionTree = async () => {
     permissionTree.value = [
       {
         id: 1,
-        name: '系统管理',
+        name: 'System Management',
         code: 'system',
         type: 'menu',
         sort: 1,
@@ -265,7 +271,7 @@ const fetchPermissionTree = async () => {
         children: [
           {
             id: 2,
-            name: '用户管理',
+            name: 'User Management',
             code: 'system:user',
             type: 'menu',
             sort: 1,
@@ -276,7 +282,7 @@ const fetchPermissionTree = async () => {
           },
           {
             id: 3,
-            name: '角色管理',
+            name: 'Role Management',
             code: 'system:role',
             type: 'menu',
             sort: 2,
@@ -301,6 +307,29 @@ const viewDetail = (userId: number) => {
   router.push({ name: 'UserDetail', params: { id: userId } })
 }
 
+// 新建用户
+const handleCreate = () => {
+  isEdit.value = false
+  currentUser.value = null
+  Object.assign(userForm, {
+    username: '',
+    email: '',
+    phone: '',
+    roleIds: [],
+    permissionIds: [],
+    status: 'active',
+  })
+  showCreateDialog.value = true
+  nextTick(() => {
+    if (permissionTreeRef.value) {
+      permissionTreeRef.value.setCheckedKeys([])
+    }
+    if (userFormRef.value) {
+      userFormRef.value.clearValidate()
+    }
+  })
+}
+
 // 编辑用户
 const editUser = (user: any) => {
   isEdit.value = true
@@ -313,25 +342,31 @@ const editUser = (user: any) => {
     permissionIds: user.permissions ? user.permissions.map((p: any) => p.id) : [],
     status: user.status,
   })
-  // 设置权限树选中状态
-  if (permissionTreeRef.value) {
-    permissionTreeRef.value.setCheckedKeys(userForm.permissionIds)
-  }
   showCreateDialog.value = true
+  // 设置权限树选中状态
+  nextTick(() => {
+    if (permissionTreeRef.value) {
+      permissionTreeRef.value.setCheckedKeys(userForm.permissionIds)
+    }
+  })
 }
 
 // 删除用户
 const deleteUser = async (user: any) => {
   try {
-    await ElMessageBox.confirm(`确定删除用户 "${user.username}" 吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    })
+    await ElMessageBox.confirm(
+      t('userList.confirmDelete', { username: user.username }),
+      t('app.confirm'),
+      {
+        confirmButtonText: t('app.ok'),
+        cancelButtonText: t('app.cancel'),
+        type: 'warning',
+      }
+    )
 
     // 这里应该调用删除API
     await userApi.deleteUser(user.id)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('userList.deleteSuccess'))
     await loadUserList()
   } catch {
     // 用户取消删除
@@ -356,16 +391,16 @@ const submitUserForm = async () => {
       if (isEdit.value && currentUser.value) {
         // 编辑用户
         await userApi.updateUser(submitData)
-        ElMessage.success('编辑成功')
+        ElMessage.success(t('userList.updateSuccess'))
       } else {
         // 新建用户
         await userApi.createUser(submitData)
-        ElMessage.success('创建成功')
+        ElMessage.success(t('userList.createSuccess'))
       }
       showCreateDialog.value = false
       await loadUserList()
     } catch (error: any) {
-      ElMessage.error(error.message || '操作失败')
+      ElMessage.error(error.message || t('userList.operationFailed'))
     } finally {
       submitLoading.value = false
     }

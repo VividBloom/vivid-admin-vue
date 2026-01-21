@@ -11,29 +11,32 @@
 
 <script setup lang="ts">
 // ========== 基础依赖导入 ==========
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { usePermissionStore } from '@/stores/permission'
 
-// Element Plus 中文语言包
+// Element Plus 语言包
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import en from 'element-plus/es/locale/lang/en'
 
 // ========== 类型定义 ==========
 interface ButtonConfig {
   autoInsertSpace?: boolean
 }
 
-// ========== 响应式数据 ==========
-const locale = ref(zhCn) // Element Plus 国际化设置
-const size = ref<'default' | 'small' | 'large'>('default') // 组件全局尺寸
-const buttonConfig = ref<ButtonConfig>({ autoInsertSpace: true }) // 按钮配置
-
 // ========== Store 初始化 ==========
 const appStore = useAppStore()
 const userStore = useUserStore()
 const permissionStore = usePermissionStore()
+const { t } = useI18n()
+
+// ========== 响应式数据 ==========
+const locale = computed(() => (appStore.language === 'en' ? en : zhCn)) // Element Plus 国际化设置
+const size = ref<'default' | 'small' | 'large'>('default') // 组件全局尺寸
+const buttonConfig = ref<ButtonConfig>({ autoInsertSpace: true }) // 按钮配置
 
 // ========== 路由实例 ==========
 const route = useRoute()
@@ -43,8 +46,8 @@ const route = useRoute()
  * 动态页面标题，根据路由元信息显示
  */
 const pageTitle = computed(() => {
-  const title = (route.meta?.title as string) || '后台管理系统'
-  return `${title} - Vue3 Admin`
+  const title = route.meta?.title ? t(route.meta.title as string) : t('app.title')
+  return `${title} - ${t('app.title')}`
 })
 
 // ========== 生命周期钩子 ==========
