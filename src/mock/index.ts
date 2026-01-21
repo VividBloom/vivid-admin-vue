@@ -6,6 +6,7 @@ import { commonMocks } from './common'
 import { userManagementMocks, userRoleMocks } from './user'
 import { permissionMocks } from './permission'
 import { roleMocks } from './role'
+import { logMocks } from './log'
 
 // 将所有 Mock 接口规则合并到一个数组中并导出
 export default [
@@ -16,4 +17,5 @@ export default [
   ...permissionMocks,
   ...roleMocks,
   ...userRoleMocks,
+  ...logMocks,
 ] as MockMethod[]

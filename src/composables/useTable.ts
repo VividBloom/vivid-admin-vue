@@ -33,7 +33,7 @@ export function useTable<T = any>(options: UseTableOptions<T>) {
     try {
       const res = await fetchDataApi({
         page: pagination.currentPage,
-        limit: pagination.pageSize,
+        pageSize: pagination.pageSize,
       })
       if (res.code === 200) {
         // 适配不同的返回结构

@@ -73,6 +73,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: 'route.permissionManagement', keepAlive: true },
           },
           {
+            path: 'log',
+            name: 'AuditLog',
+            component: () => import('@/pages/system/AuditLog.vue'),
+            meta: { title: 'route.auditLog', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),
