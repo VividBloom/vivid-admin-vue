@@ -9,6 +9,7 @@ export default {
     auditLog: '操作日志',
     dict: '字典管理',
     department: '部门管理',
+    editorDemo: '富文本编辑器',
     profile: '个人资料',
     changePassword: '修改密码',
     login: '登录',

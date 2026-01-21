@@ -133,6 +133,19 @@ export const permissions: API.Permission[] = [
     createTime: '2025-01-01 00:00:00',
     updateTime: '2025-01-01 00:00:00',
   },
+  {
+    id: 13,
+    name: 'route.editorDemo',
+    code: 'system:editor',
+    type: 'menu',
+    parentId: 1,
+    path: '/system/editor',
+    icon: 'EditPen',
+    sort: 7,
+    status: 'active',
+    createTime: '2025-01-01 00:00:00',
+    updateTime: '2025-01-01 00:00:00',
+  },
   // 仪表盘
   {
     id: 5,

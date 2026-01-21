@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @ts-nocheck
 // biome-ignore lint: disable
 // oxlint-disable
@@ -11,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CommonPagination: typeof import('./../components/CommonPagination.vue')['default']
+    Editor: typeof import('./../components/Editor/index.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']

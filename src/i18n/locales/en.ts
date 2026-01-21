@@ -9,6 +9,7 @@ export default {
     auditLog: 'Audit Log',
     dict: 'Dictionary',
     department: 'Department Management',
+    editorDemo: 'Rich Text Editor',
     profile: 'Profile',
     changePassword: 'Change Password',
     login: 'Login',

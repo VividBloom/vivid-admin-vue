@@ -92,6 +92,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: 'route.department', keepAlive: true },
           },
           {
+            path: 'editor',
+            name: 'EditorDemo',
+            component: () => import('@/pages/system/EditorDemo.vue'),
+            meta: { title: 'route.editorDemo', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),
@@ -181,7 +187,7 @@ router.afterEach(to => {
     import('@/api/log').then(({ logApi }) => {
       logApi
         .createLog({
-          module: 'Router',
+          module: title,
           action: 'Visit',
           details: `Visit page: ${title}`,
           status: 'success',
