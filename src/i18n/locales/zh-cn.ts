@@ -82,6 +82,13 @@ export default {
     status: '状态',
     parent: '上级部门',
     description: '描述',
+    newDepartment: '新增部门',
+    editDepartment: '编辑部门',
+    parentDepartment: '上级部门',
+    enterName: '请输入部门名称',
+    enterCode: '请输入部门编码',
+    enterLeader: '请输入负责人姓名',
+    enterPhone: '请输入联系电话',
   },
   login: {
     title: 'Vue3 Admin 登录',

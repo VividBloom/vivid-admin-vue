@@ -95,6 +95,13 @@ export default {
     status: 'Status',
     parent: 'Parent Department',
     description: 'Description',
+    newDepartment: 'New Department',
+    editDepartment: 'Edit Department',
+    parentDepartment: 'Parent Department',
+    enterName: 'Please enter department name',
+    enterCode: 'Please enter department code',
+    enterLeader: 'Please enter leader name',
+    enterPhone: 'Please enter phone number',
   },
   login: {
     title: 'Vue3 Admin Login',
