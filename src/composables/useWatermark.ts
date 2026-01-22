@@ -1,10 +1,17 @@
 import { ref, onUnmounted, type Ref } from 'vue'
 
-export function useWatermark(appendEl: Ref<HTMLElement | null> = ref(document.body)) {
-  const id = '1.2.3.4.5.6'
+export function useWatermark(
+  appendEl: Ref<HTMLElement | null> = ref(document.body),
+  id: string = '1.2.3.4.5.6'
+) {
   const watermarkEl = ref<HTMLElement | null>(null)
+  let observer: MutationObserver | null = null
 
   const clear = () => {
+    if (observer) {
+      observer.disconnect()
+      observer = null
+    }
     const domId = document.getElementById(id)
     if (domId) {
       const parent = domId.parentNode
@@ -15,7 +22,13 @@ export function useWatermark(appendEl: Ref<HTMLElement | null> = ref(document.bo
   }
 
   const createWatermark = (str: string) => {
-    clear()
+    const domId = document.getElementById(id)
+    if (domId) {
+      const parent = domId.parentNode
+      if (parent) {
+        parent.removeChild(domId)
+      }
+    }
 
     const can = document.createElement('canvas')
     can.width = 300
@@ -24,7 +37,7 @@ export function useWatermark(appendEl: Ref<HTMLElement | null> = ref(document.bo
     const cans = can.getContext('2d')
     if (cans) {
       cans.rotate((-20 * Math.PI) / 180)
-      cans.font = '15px Vedana'
+      cans.font = '15px Verdana'
       cans.fillStyle = 'rgba(200, 200, 200, 0.20)'
       cans.textAlign = 'left'
       cans.textBaseline = 'middle'
@@ -41,7 +54,7 @@ export function useWatermark(appendEl: Ref<HTMLElement | null> = ref(document.bo
     div.style.width = '100%'
     div.style.height = '100%'
     div.style.background = 'url(' + can.toDataURL('image/png') + ') left top repeat'
-    
+
     if (appendEl.value) {
       appendEl.value.style.position = 'relative'
       appendEl.value.appendChild(div)
@@ -50,29 +63,29 @@ export function useWatermark(appendEl: Ref<HTMLElement | null> = ref(document.bo
   }
 
   const setWatermark = (str: string) => {
+    clear()
     createWatermark(str)
-    
+
     // 监听DOM变化，防止水印被删除
-    const observer = new MutationObserver(() => {
-        const dom = document.getElementById(id)
-        if (!dom && appendEl.value) {
-            createWatermark(str)
-        }
+    observer = new MutationObserver(() => {
+      const dom = document.getElementById(id)
+      if (!dom && appendEl.value) {
+        createWatermark(str)
+      }
     })
-    
+
     if (appendEl.value) {
-        observer.observe(appendEl.value, {
-            childList: true,
-            attributes: true,
-            subtree: true
-        })
+      observer.observe(appendEl.value, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+      })
     }
-    
-    onUnmounted(() => {
-        observer.disconnect()
-        clear()
-    })
   }
+
+  onUnmounted(() => {
+    clear()
+  })
 
   return { setWatermark, clear }
 }

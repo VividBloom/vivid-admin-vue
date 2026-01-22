@@ -7,6 +7,8 @@
     destroy-on-close
     class="file-preview-dialog"
     :fullscreen="fullscreen"
+    :show-close="false"
+    :draggable="!fullscreen"
   >
     <template #header="{ close, titleId, titleClass }">
       <div class="my-header flex justify-between items-center">
@@ -14,7 +16,7 @@
         <div class="flex items-center gap-2">
           <el-button link @click="toggleFullscreen">
             <el-icon>
-              <div :class="fullscreen ? 'i-ep-full-screen' : 'i-ep-full-screen'" />
+              <div :class="fullscreen ? 'i-ep-copy-document' : 'i-ep-full-screen'" />
             </el-icon>
           </el-button>
           <el-button link @click="close">
@@ -24,7 +26,7 @@
       </div>
     </template>
 
-    <div v-loading="loading" class="preview-container">
+    <div ref="previewContainer" v-loading="loading" class="preview-container">
       <!-- Image -->
       <div v-if="fileType === 'image'" class="h-full flex justify-center items-center bg-gray-100">
         <el-image :src="file?.url" fit="contain" class="max-h-full max-w-full" />
@@ -96,8 +98,11 @@ import VueOfficePdf from '@vue-office/pdf'
 import VueOfficePptx from '@vue-office/pptx'
 // @ts-ignore
 import ePub from 'epubjs'
+import { useUserStore } from '@/stores/user'
+import { useWatermark } from '@/composables/useWatermark'
 
 const { t } = useI18n()
+const userStore = useUserStore()
 
 interface Props {
   modelValue: boolean
@@ -118,6 +123,8 @@ const visible = computed({
 
 const loading = ref(false)
 const fullscreen = ref(false)
+const previewContainer = ref<HTMLElement | null>(null)
+const { setWatermark, clear } = useWatermark(previewContainer, 'file-preview-watermark')
 
 const toggleFullscreen = () => {
   fullscreen.value = !fullscreen.value
@@ -179,12 +186,21 @@ watch(
   ([val, file]) => {
     if (val && file) {
       loading.value = true
+
+      // Set watermark
+      nextTick(() => {
+        const username = userStore.userInfo?.username || 'Guest'
+        setWatermark(`${username} - ${t('preview.title')}`)
+      })
+
       if (fileType.value === 'epub') {
         renderEpub()
       } else if (fileType.value === 'image') {
         loading.value = false
       }
       // Other types handle loading via events
+    } else {
+      clear()
     }
   }
 )
