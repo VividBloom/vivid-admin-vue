@@ -14,6 +14,23 @@
       <div class="my-header flex justify-between items-center">
         <h4 :id="titleId" :class="titleClass">{{ file?.name || t('preview.title') }}</h4>
         <div class="flex items-center gap-2">
+          <!-- Zoom Controls for Office/PDF -->
+          <div
+            v-if="['word', 'excel', 'ppt', 'pdf'].includes(fileType)"
+            class="flex items-center gap-1 mr-4 border-r pr-4"
+          >
+            <el-button circle size="small" @click="handleZoom(-0.1)">
+              <el-icon><div class="i-ep-minus" /></el-icon>
+            </el-button>
+            <span class="text-sm w-12 text-center">{{ Math.round(scale * 100) }}%</span>
+            <el-button circle size="small" @click="handleZoom(0.1)">
+              <el-icon><div class="i-ep-plus" /></el-icon>
+            </el-button>
+            <el-button circle size="small" @click="scale = 1">
+              <el-icon><div class="i-ep-refresh-right" /></el-icon>
+            </el-button>
+          </div>
+
           <el-button link @click="toggleFullscreen">
             <el-icon>
               <div :class="fullscreen ? 'i-ep-copy-document' : 'i-ep-full-screen'" />
@@ -29,44 +46,85 @@
     <div ref="previewContainer" v-loading="loading" class="preview-container">
       <!-- Image -->
       <div v-if="fileType === 'image'" class="h-full flex justify-center items-center bg-gray-100">
-        <el-image :src="file?.url" fit="contain" class="max-h-full max-w-full" />
+        <el-image
+          :src="file?.url"
+          fit="contain"
+          class="max-h-full max-w-full"
+          :style="{ transform: `scale(${scale})`, transition: 'transform 0.2s' }"
+        />
       </div>
 
       <!-- Word -->
-      <VueOfficeDocx
+      <div
         v-else-if="fileType === 'word'"
-        :src="file?.url"
-        class="docx-container"
-        @rendered="onRendered"
-        @error="onError"
-      />
+        class="office-wrapper w-full h-full overflow-auto bg-gray-100 flex justify-center"
+      >
+        <VueOfficeDocx
+          :src="file?.url"
+          class="docx-container shadow-lg"
+          :style="{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            width: '800px', // Fixed width base for better scaling
+            minHeight: '100%',
+          }"
+          @rendered="onRendered"
+          @error="onError"
+        />
+      </div>
 
       <!-- Excel -->
-      <VueOfficeExcel
+      <div
         v-else-if="fileType === 'excel'"
-        :src="file?.url"
-        class="excel-container"
-        @rendered="onRendered"
-        @error="onError"
-      />
+        class="office-wrapper w-full h-full overflow-auto bg-gray-100"
+      >
+        <VueOfficeExcel
+          :src="file?.url"
+          class="excel-container"
+          :style="{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }"
+          @rendered="onRendered"
+          @error="onError"
+        />
+      </div>
 
       <!-- PDF -->
-      <VueOfficePdf
+      <div
         v-else-if="fileType === 'pdf'"
-        :src="file?.url"
-        class="pdf-container"
-        @rendered="onRendered"
-        @error="onError"
-      />
+        class="office-wrapper w-full h-full overflow-auto bg-gray-100 flex justify-center"
+      >
+        <VueOfficePdf
+          :src="file?.url"
+          class="pdf-container shadow-lg"
+          :style="{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            width: '800px',
+          }"
+          @rendered="onRendered"
+          @error="onError"
+        />
+      </div>
 
       <!-- PPT -->
-      <VueOfficePptx
+      <div
         v-else-if="fileType === 'ppt'"
-        :src="file?.url"
-        class="ppt-container"
-        @rendered="onRendered"
-        @error="onError"
-      />
+        class="office-wrapper w-full h-full overflow-auto bg-gray-100 flex justify-center"
+      >
+        <VueOfficePptx
+          :src="file?.url"
+          class="ppt-container shadow-lg"
+          :style="{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            width: '100%',
+          }"
+          @rendered="onRendered"
+          @error="onError"
+        />
+      </div>
 
       <!-- EPUB -->
       <EpubViewer v-else-if="fileType === 'epub'" :url="file?.url || ''" class="epub-container" />
@@ -137,6 +195,15 @@ const visible = computed({
 const loading = ref(false)
 const fullscreen = ref(false)
 const previewContainer = ref<HTMLElement | null>(null)
+const scale = ref(1.0)
+
+const handleZoom = (delta: number) => {
+  const newScale = scale.value + delta
+  if (newScale >= 0.1 && newScale <= 3.0) {
+    scale.value = Number(newScale.toFixed(1))
+  }
+}
+
 const { setWatermark, clear } = useWatermark(previewContainer, 'file-preview-watermark')
 
 const toggleFullscreen = () => {
@@ -210,6 +277,7 @@ watch(
   ([val, file]) => {
     if (val && file) {
       loading.value = true
+      scale.value = 1.0
 
       // Set watermark
       nextTick(() => {
