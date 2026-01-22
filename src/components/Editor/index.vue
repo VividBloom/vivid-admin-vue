@@ -11,8 +11,8 @@
       style="height: 500px; overflow-y: hidden"
       :default-config="editorConfig"
       :mode="mode"
-      @onCreated="handleCreated"
-      @onChange="handleChange"
+      @on-created="handleCreated"
+      @on-change="handleChange"
     />
   </div>
 </template>
@@ -62,8 +62,14 @@ watch(
   () => props.disabled,
   val => {
     const editor = editorRef.value
-    if (editor == null) return
-    val ? editor.disable() : editor.enable()
+    if (editor === null) {
+      return
+    }
+    if (val) {
+      editor.disable()
+    } else {
+      editor.enable()
+    }
   }
 )
 
@@ -102,7 +108,9 @@ const editorConfig: Partial<IEditorConfig> = {
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
   const editor = editorRef.value
-  if (editor == null) return
+  if (editor === null) {
+    return
+  }
   editor.destroy()
 })
 

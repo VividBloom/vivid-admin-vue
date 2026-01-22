@@ -146,6 +146,19 @@ export const permissions: API.Permission[] = [
     createTime: '2025-01-01 00:00:00',
     updateTime: '2025-01-01 00:00:00',
   },
+  {
+    id: 14,
+    name: 'route.fileDemo',
+    code: 'system:file',
+    type: 'menu',
+    parentId: 1,
+    path: '/system/file',
+    icon: 'Files',
+    sort: 8,
+    status: 'active',
+    createTime: '2025-01-01 00:00:00',
+    updateTime: '2025-01-01 00:00:00',
+  },
   // 仪表盘
   {
     id: 5,

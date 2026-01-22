@@ -98,6 +98,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: 'route.editorDemo', keepAlive: true },
           },
           {
+            path: 'file',
+            name: 'FileDemo',
+            component: () => import('@/pages/system/FileDemo.vue'),
+            meta: { title: 'route.fileDemo', keepAlive: true },
+          },
+          {
             path: 'profile',
             name: 'Profile',
             component: () => import('@/pages/system/Profile.vue'),

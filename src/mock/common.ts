@@ -22,6 +22,14 @@ export const commonMocks: MockMethod[] = [
           children: [
             { id: 21, name: 'route.userList', path: '/system/user', icon: 'User' },
             { id: 22, name: 'route.roleManagement', path: '/system/role', icon: 'UserFilled' },
+            {
+              id: 28,
+              name: 'route.department',
+              path: '/system/department',
+              icon: 'OfficeBuilding',
+            },
+            { id: 29, name: 'route.editorDemo', path: '/system/editor', icon: 'EditPen' },
+            { id: 30, name: 'route.fileDemo', path: '/system/file', icon: 'Files' },
             { id: 23, name: 'route.profile', path: '/system/profile', icon: 'User' },
           ],
         },
