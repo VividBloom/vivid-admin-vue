@@ -50,6 +50,14 @@ const fileList = [
     size: 1024 * 800,
     createTime: '2023-05-25 11:10:00',
   },
+  {
+    id: '7',
+    name: 'roadmap.xmind',
+    url: 'https://raw.githubusercontent.com/xmindltd/xmind-sdk-js/master/demo/workbook.xmind',
+    type: 'application/vnd.xmind.workbook',
+    size: 1024 * 200,
+    createTime: '2023-05-26 09:00:00',
+  },
 ]
 
 export const fileMocks: MockMethod[] = [

@@ -71,6 +71,14 @@
       <!-- EPUB -->
       <div v-else-if="fileType === 'epub'" id="epub-area" class="epub-container"></div>
 
+      <!-- XMind -->
+      <div
+        v-else-if="fileType === 'xmind'"
+        id="xmind-container"
+        ref="xmindContainer"
+        class="xmind-container"
+      ></div>
+
       <!-- Unsupported -->
       <div v-else class="h-full flex flex-col justify-center items-center text-gray-400">
         <el-icon :size="64"><div class="i-ep-document-delete" /></el-icon>
@@ -84,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 // @ts-ignore
 import VueOfficeDocx from '@vue-office/docx'
@@ -98,6 +106,10 @@ import VueOfficePdf from '@vue-office/pdf'
 import VueOfficePptx from '@vue-office/pptx'
 // @ts-ignore
 import ePub from 'epubjs'
+import MindMap from 'simple-mind-map'
+import 'simple-mind-map/dist/simpleMindMap.esm.css'
+// @ts-ignore
+import xmind from 'simple-mind-map/src/parse/xmind.js'
 import { useUserStore } from '@/stores/user'
 import { useWatermark } from '@/composables/useWatermark'
 
@@ -139,6 +151,7 @@ const fileType = computed(() => {
   if (/\.(pdf)$/.test(name)) return 'pdf'
   if (/\.(pptx|ppt)$/.test(name)) return 'ppt'
   if (/\.(epub)$/.test(name)) return 'epub'
+  if (/\.(xmind)$/.test(name)) return 'xmind'
   return 'unknown'
 })
 
@@ -181,6 +194,47 @@ const renderEpub = () => {
   })
 }
 
+// XMind Handling
+let mindMap: any = null
+// const xmindContainer = ref<HTMLElement | null>(null) // defined in template ref
+
+const renderXmind = async () => {
+  if (!props.file?.url) return
+  loading.value = true
+  try {
+    const response = await fetch(props.file.url)
+    const arrayBuffer = await response.arrayBuffer()
+    const data = await xmind.parseXmindFile(arrayBuffer)
+
+    nextTick(() => {
+      if (mindMap) {
+        mindMap.destroy()
+        mindMap = null
+      }
+      const el = document.getElementById('xmind-container')
+      if (el) {
+        el.innerHTML = ''
+        mindMap = new MindMap({
+          el,
+          data,
+          readonly: true,
+          theme: 'default',
+        } as any)
+        loading.value = false
+      }
+    })
+  } catch (e) {
+    onError(e)
+  }
+}
+
+onUnmounted(() => {
+  if (mindMap) {
+    mindMap.destroy()
+    mindMap = null
+  }
+})
+
 watch(
   () => [props.modelValue, props.file],
   ([val, file]) => {
@@ -195,12 +249,18 @@ watch(
 
       if (fileType.value === 'epub') {
         renderEpub()
+      } else if (fileType.value === 'xmind') {
+        renderXmind()
       } else if (fileType.value === 'image') {
         loading.value = false
       }
       // Other types handle loading via events
     } else {
       clear()
+      if (mindMap) {
+        mindMap.destroy()
+        mindMap = null
+      }
     }
   }
 )
@@ -221,7 +281,8 @@ watch(
 .excel-container,
 .pdf-container,
 .ppt-container,
-.epub-container {
+.epub-container,
+.xmind-container {
   width: 100%;
   height: 100%;
   min-height: 600px;
