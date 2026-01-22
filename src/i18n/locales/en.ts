@@ -100,6 +100,17 @@ export default {
     unsupported: 'Preview not supported for this file format',
     download: 'Download to view',
   },
+  epub: {
+    toc: 'Table of Contents',
+    prev: 'Previous',
+    next: 'Next',
+    noToc: 'No Table of Contents',
+    theme: {
+      light: 'Light',
+      dark: 'Dark',
+      sepia: 'Sepia',
+    },
+  },
   dict: {
     name: 'Dictionary Name',
     code: 'Dictionary Code',

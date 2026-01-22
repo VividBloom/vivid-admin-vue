@@ -101,6 +101,17 @@ export default {
     unsupported: '暂不支持该文件格式预览',
     download: '下载文件查看',
   },
+  epub: {
+    toc: '目录',
+    prev: '上一页',
+    next: '下一页',
+    noToc: '暂无目录',
+    theme: {
+      light: '亮色',
+      dark: '暗色',
+      sepia: '护眼',
+    },
+  },
   dict: {
     name: '字典名称',
     code: '字典编码',

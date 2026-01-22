@@ -21,7 +21,7 @@ export function useWatermark(
     }
   }
 
-  const createWatermark = (str: string) => {
+  const createWatermark = (str: string, opacity: number = 0.5) => {
     const domId = document.getElementById(id)
     if (domId) {
       const parent = domId.parentNode
@@ -38,7 +38,7 @@ export function useWatermark(
     if (cans) {
       cans.rotate((-20 * Math.PI) / 180)
       cans.font = '15px Verdana'
-      cans.fillStyle = 'rgba(200, 200, 200, 0.20)'
+      cans.fillStyle = `rgba(200, 200, 200, ${opacity})`
       cans.textAlign = 'left'
       cans.textBaseline = 'middle'
       cans.fillText(str, can.width / 20, can.height)
@@ -62,15 +62,15 @@ export function useWatermark(
     }
   }
 
-  const setWatermark = (str: string) => {
+  const setWatermark = (str: string, opacity: number = 0.3) => {
     clear()
-    createWatermark(str)
+    createWatermark(str, opacity)
 
     // 监听DOM变化，防止水印被删除
     observer = new MutationObserver(() => {
       const dom = document.getElementById(id)
       if (!dom && appendEl.value) {
-        createWatermark(str)
+        createWatermark(str, opacity)
       }
     })
 

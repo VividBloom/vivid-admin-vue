@@ -69,7 +69,7 @@
       />
 
       <!-- EPUB -->
-      <div v-else-if="fileType === 'epub'" id="epub-area" class="epub-container"></div>
+      <EpubViewer v-else-if="fileType === 'epub'" :url="file?.url || ''" class="epub-container" />
 
       <!-- XMind -->
       <div
@@ -112,6 +112,7 @@ import 'simple-mind-map/dist/simpleMindMap.esm.css'
 import xmind from 'simple-mind-map/src/parse/xmind.js'
 import { useUserStore } from '@/stores/user'
 import { useWatermark } from '@/composables/useWatermark'
+import EpubViewer from './EpubViewer.vue'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -164,39 +165,8 @@ const onError = (e: any) => {
   loading.value = false
 }
 
-// EPUB Handling
-let book: any = null
-let rendition: any = null
-
-const renderEpub = () => {
-  if (!props.file?.url) return
-  loading.value = true
-  nextTick(() => {
-    const area = document.getElementById('epub-area')
-    if (area && props.file) {
-      area.innerHTML = '' // Clear previous
-      book = ePub(props.file.url)
-      rendition = book.renderTo('epub-area', {
-        width: '100%',
-        height: '100%',
-        flow: 'scrolled-doc',
-      })
-      rendition
-        .display()
-        .then(() => {
-          loading.value = false
-        })
-        .catch((err: any) => {
-          console.error(err)
-          loading.value = false
-        })
-    }
-  })
-}
-
 // XMind Handling
 let mindMap: any = null
-// const xmindContainer = ref<HTMLElement | null>(null) // defined in template ref
 
 const renderXmind = async () => {
   if (!props.file?.url) return
@@ -248,7 +218,7 @@ watch(
       })
 
       if (fileType.value === 'epub') {
-        renderEpub()
+        loading.value = false
       } else if (fileType.value === 'xmind') {
         renderXmind()
       } else if (fileType.value === 'image') {
