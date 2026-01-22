@@ -96,6 +96,11 @@ export default {
     dragTip: '支持拖拽上传，支持多选',
     imageTip: '仅支持图片文件',
   },
+  preview: {
+    title: '文件预览',
+    unsupported: '暂不支持该文件格式预览',
+    download: '下载文件查看',
+  },
   dict: {
     name: '字典名称',
     code: '字典编码',

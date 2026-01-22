@@ -95,6 +95,11 @@ export default {
     dragTip: 'Support drag and drop, multiple files',
     imageTip: 'Image files only',
   },
+  preview: {
+    title: 'File Preview',
+    unsupported: 'Preview not supported for this file format',
+    download: 'Download to view',
+  },
   dict: {
     name: 'Dictionary Name',
     code: 'Dictionary Code',

@@ -55,7 +55,7 @@
                 ><div class="i-ep-picture"
               /></el-icon>
               <el-icon v-else class="mr-2"><div class="i-ep-document" /></el-icon>
-              <el-link :href="row.url" target="_blank" type="primary">{{ row.name }}</el-link>
+              <el-link type="primary" @click="handlePreview(row)">{{ row.name }}</el-link>
             </div>
           </template>
         </el-table-column>
@@ -66,8 +66,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" :label="t('upload.createTime')" width="180" />
-        <el-table-column :label="t('common.action')" width="150" fixed="right">
+        <el-table-column :label="t('common.action')" width="180" fixed="right">
           <template #default="{ row }">
+            <el-button link type="primary" @click="handlePreview(row)">{{
+              t('preview.title')
+            }}</el-button>
             <el-button link type="danger" @click="handleDelete(row)">{{
               t('common.delete')
             }}</el-button>
@@ -75,6 +78,8 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <FilePreview v-model="previewVisible" :file="previewFile" />
   </div>
 </template>
 
@@ -83,6 +88,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Upload from '@/components/Upload/index.vue'
+import FilePreview from '@/components/FilePreview/index.vue'
 import { fileApi, type FileItem } from '@/api/file'
 import type { UploadUserFile } from 'element-plus'
 
@@ -100,6 +106,17 @@ const imageFiles = ref<UploadUserFile[]>([
 
 const loading = ref(false)
 const resourceList = ref<FileItem[]>([])
+const previewVisible = ref(false)
+const previewFile = ref<any>(null)
+
+const handlePreview = (row: FileItem) => {
+  previewFile.value = {
+    name: row.name,
+    url: row.url,
+    type: row.type,
+  }
+  previewVisible.value = true
+}
 
 const fetchFileList = async () => {
   loading.value = true
